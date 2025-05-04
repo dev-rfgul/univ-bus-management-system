@@ -40,7 +40,6 @@ class StudentBooking(models.Model):
         def __str__(self):
             return f"Booking by {self.student_name} for {self.bus} on {self.route}"
         
-
 class Driver(models.Model):
         name = models.CharField(max_length=100)
         license_number = models.CharField(max_length=20, unique=True)
