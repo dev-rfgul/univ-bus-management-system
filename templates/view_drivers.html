@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Bus List</h1>
+    <table border="1">
+        <tr>
+            <th>Driver ID</th>
+            <th>Driver Name</th>
+            <th>License</th>
+            <th>contact number</th>
+            <th>alloted Bus</th>
+        </tr>
+        {% for driver in drivers %}
+        <tr>
+            <td>{{ driver.id }}</td>
+            <td>{{ driver.name}}</td>
+            <td>{{ driver.license_number}}</td>
+            <td>{{ driver.contact_number }}</td>
+            <td>{{ driver.bus }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</body>
+</html>

@@ -56,6 +56,7 @@ def add_route(request):
         )
         return HttpResponse("Route added successfully")
     return HttpResponse("Send a POST request")
+
 def add_schedule(request):
     if request.method=='POST':
         bus=request.POST.get('bus'),
@@ -71,7 +72,9 @@ def add_schedule(request):
         )
         return HttpResponse("Schedule added successfully")
     return HttpResponse("Send a POST request")
+
 def add_student_booking(request):
+
     if request.method=='POST':
         student_name=request.POST.get('student_name'),
         bus=request.POST.get('bus'),
@@ -88,3 +91,23 @@ def add_student_booking(request):
         )
         return HttpResponse("Student Booking added successfully")
     return HttpResponse("Send a POST request")
+
+def view_buses(request):
+    buses = Bus.objects.all()
+    context={'buses': buses}
+    return render(request, 'view_buses.html', context)
+
+def view_drivers(request):
+    drivers = Driver.objects.all()
+    context={'drivers': drivers}
+    return render(request, 'view_drivers.html', context)
+def view_routes(request):
+    routes = Route.objects.all()
+    context = {'routes': routes}
+    return render(request, 'view_routes.html', context)
+def view_schedules(request):
+    schedules = Schedule.objects.all()
+    return render(request, 'view_schedules.html', {'schedules': schedules})
+def view_student_bookings(request):
+    student_bookings = StudentBooking.objects.all()
+    return render(request, 'view_student_bookings.html', {'student_bookings': student_bookings})

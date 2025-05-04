@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>schedule list</h1>
+    <table border="1">
+      <tr>
+        <th>id</th>
+        <th>route number</th>
+        <th>start point</th>
+        <th>end location</th>
+        <th>distace</th>
+        <th>stops</th>
+      </tr>
+      {% for route in routes %}
+      <tr>
+        <td>{{ route.route_number}}</td>
+        <td>{{ route.start_location}}</td>
+        <td>{{ route.end_location }}</td>
+        <td>{{ route.distance }}</td>
+        <td>{{ route.stops}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>

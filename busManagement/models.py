@@ -17,6 +17,7 @@ class Route(models.Model):
         start_location = models.CharField(max_length=100)
         end_location = models.CharField(max_length=100)
         distance = models.FloatField()
+        stops=models.TextField(default='') 
 
         def __str__(self):
             return f"Route {self.route_number} - {self.start_location} to {self.end_location}"

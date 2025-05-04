@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Bus List</h1>
+    <table border="1">
+        <tr>
+            <th>Bus ID</th>
+            <th>Bus Number</th>
+            <th>Driver Name</th>
+            <th>Route</th>
+            <th>Capacity</th>
+            <th>available_seat</th>
+        </tr>
+        {% for bus in buses %}
+        <tr>
+            <td>{{ bus.id }}</td>
+            <td>{{ bus.bus_number }}</td>
+            <td>{{ bus.driver_name }}</td>
+            <td>{{ bus.route}}</td>
+            <td>{{ bus.capacity }}</td>
+            <td>{{ bus.available_seats }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</body>
+</html>
