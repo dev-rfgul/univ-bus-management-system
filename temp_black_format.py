@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from .models import Bus,Driver,Route,Schedule,StudentBooking
 # Create your views here.
@@ -101,13 +101,49 @@ def view_drivers(request):
     drivers = Driver.objects.all()
     context={'drivers': drivers}
     return render(request, 'view_drivers.html', context)
+
 def view_routes(request):
     routes = Route.objects.all()
     context = {'routes': routes}
     return render(request, 'view_routes.html', context)
+
 def view_schedules(request):
     schedules = Schedule.objects.all()
     return render(request, 'view_schedules.html', {'schedules': schedules})
+
 def view_student_bookings(request):
     student_bookings = StudentBooking.objects.all()
     return render(request, 'view_student_bookings.html', {'student_bookings': student_bookings})
+
+
+    
+def available_buses(request):
+    if request.method == 'POST':
+        route_id = request.POST.get('route')
+        time = request.POST.get('time')
+
+        if route_id and time:
+            try:
+                route = Route.objects.get(id=route_id)
+                buses = Bus.objects.filter(route=route, route__time=time)
+                stops = route.stops.split(',')  # Create list of stops
+            except Route.DoesNotExist:
+                buses = []
+                stops = []
+        else:
+            buses = []
+            stops = []
+
+        return render(request, 'bus_list.html', {
+            'buses': buses,
+            'stops': stops,
+            'route': route if 'route' in locals() else None
+        })
+    
+    routes = Route.objects.all()
+    return render(request, 'bus_filter.html', {'routes': routes})
+
+def register_bus(request, bus_id):
+    bus = get_object_or_404(Bus, id=bus_id)
+    bus.registered_users.add(request.user)
+    return redirect('available_buses')  # or show a success page

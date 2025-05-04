@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from .models import Bus,Driver,Route,Schedule,StudentBooking
 # Create your views here.
@@ -101,13 +101,75 @@ def view_drivers(request):
     drivers = Driver.objects.all()
     context={'drivers': drivers}
     return render(request, 'view_drivers.html', context)
+
 def view_routes(request):
     routes = Route.objects.all()
     context = {'routes': routes}
     return render(request, 'view_routes.html', context)
+
 def view_schedules(request):
     schedules = Schedule.objects.all()
     return render(request, 'view_schedules.html', {'schedules': schedules})
+
 def view_student_bookings(request):
     student_bookings = StudentBooking.objects.all()
     return render(request, 'view_student_bookings.html', {'student_bookings': student_bookings})
+
+
+def available_buses(request):
+    buses = []
+    stops = []
+    routes=Route.objects.all()
+
+    # Handle POST request (form submission)
+    if request.method == 'POST':
+        route_id = request.POST.get('route')
+        stop = request.POST.get('stop')  # Stop is optional
+        time = request.POST.get('time')
+
+        # Validate inputs
+        if route_id:
+            try:
+                route = Route.objects.get(id=route_id)
+                buses = Bus.objects.filter(route=route)
+
+                # If time is selected, filter by time
+                if time:
+                    buses = buses.filter(schedules__departure_time=time)
+
+                # If stop is provided, filter buses by the stop (only if stop is selected)
+                if stop and stop in route.stops.split(','):
+                    buses = buses.filter(route=route, schedules__departure_time=time)
+
+                # Get stops for the selected route
+                stops = [stop.strip() for stop in route.stops.split(',')]  # Split and clean stops
+
+            except Route.DoesNotExist:
+                buses = []
+                stops = []
+
+        else:
+            buses = []
+            stops = []
+
+    # Handle GET request (initial page load)
+    else:
+        # Show available routes in the form
+        routes = Route.objects.all()
+
+        # If route is selected, get the stops for that route
+        if 'route' in request.GET:
+            route_id = request.GET.get('route')
+            try:
+                route = Route.objects.get(id=route_id)
+                stops = [stop.strip() for stop in route.stops.split(',')]
+            except Route.DoesNotExist:
+                stops = []
+
+    # Return the rendered response
+    return render(request, 'bus_filter.html', {'routes': routes, 'stops': stops, 'buses': buses})
+
+def register_bus(request, bus_id):
+    bus = get_object_or_404(Bus, id=bus_id)
+    bus.registered_users.add(request.user)
+    return redirect('available_buses')  # or show a success page

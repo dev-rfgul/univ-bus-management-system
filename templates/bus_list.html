@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h2>Available Buses</h2>
+    <ul>
+      {% for bus in buses %}
+      <li>
+        {{ bus }} - Registered: {{ bus.registered_count }}
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'register_bus' bus.id %}">
+          {% csrf_token %}
+          <button type="submit">Register</button>
+        </form>
+        {% else %}
+        <p><a href="{% url 'login' %}">Login to Register</a></p>
+        {% endif %}
+      </li>
+      {% empty %}
+      <li>No buses available for the selected route and time.</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h2>Filter Buses</h2>
+    <form method="POST">
+      {% csrf_token %}
+      
+      <label for="route">Route:</label>
+      <select name="route" id="route" onchange="updateStops()">
+        {% for route in routes %}
+          <option value="{{ route.id }}" data-stops="{{ route.stops }}">{{ route }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="stop">Stop:</label>
+      <select name="stop" id="stop">
+        {% if stops %}
+          {% for stop in stops %}
+            <option value="{{ stop }}">{{ stop }}</option>
+          {% endfor %}
+        {% else %}
+          <option value="">No stops available</option>
+        {% endif %}
+      </select>
+
+      <label for="time">Time:</label>
+      <input type="time" name="time" id="time" required>
+
+      <button type="submit">Check Buses</button>
+    </form>
+
+    <h2>Available Buses</h2>
+    <ul>
+      {% for bus in buses %}
+      <li>
+        {{ bus }} - Registered: {{ bus.registered_count }} 
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'register_bus' bus.id %}">
+            {% csrf_token %}
+            <button type="submit">Register</button>
+          </form>
+        {% else %}
+          <p><a href="{% url 'login' %}">Login to Register</a></p>
+        {% endif %}
+      </li>
+      {% empty %}
+      <li>No buses available for the selected route, stop, and time.</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>

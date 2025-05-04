@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Bus List</h1>
+    <table border="1">
+        <tr>
+
+            <th>id</th>
+            <th>std name</th>
+            <th>Bus </th>
+            <th>Route</th>
+            <th>booking date</th>
+            <th>seat booked</th>
+        </tr>
+        {% for student_booking in student_bookings %}
+        <tr>
+            <td>{{ student_booking.id }}</td>
+            <td>{{ student_booking.student_name}}</td>
+            <td>{{ student_booking.bus}}</td>
+            <td>{{ student_booking.route}}</td>
+            <td>{{ student_booking.booking_date }}</td>
+            <td>{{ student_booking.seats_booked }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</body>
+</html>

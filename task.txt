@@ -1,0 +1,6 @@
+a user can enter the stop he wants to land and it will be stored in student booking,
+remove the book seats from student booking
+
+
+a student will select the time and the stop and all the buses of that time and route will be displayed to him , and then he can register by just clicking , on click the user will be registered for the bus and and it will be added in the bus model , so other can also see that how many users have registered for a specific bus.
+
