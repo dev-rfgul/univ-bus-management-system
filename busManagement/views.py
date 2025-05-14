@@ -119,55 +119,53 @@ def view_student_bookings(request):
 def available_buses(request):
     buses = []
     stops = []
-    routes=Route.objects.all()
+    routes = Route.objects.all()
 
-    # Handle POST request (form submission)
     if request.method == 'POST':
         route_id = request.POST.get('route')
-        stop = request.POST.get('stop')  # Stop is optional
+        stop = request.POST.get('stop')  # User-entered stop
         time = request.POST.get('time')
 
-        # Validate inputs
         if route_id:
             try:
                 route = Route.objects.get(id=route_id)
-                buses = Bus.objects.filter(route=route)
+                route_stops = [s.strip().lower() for s in route.stops.split(',')]
 
-                # If time is selected, filter by time
-                if time:
-                    buses = buses.filter(schedules__departure_time=time)
+                # Check if the stop is in the route
+                if stop and stop.lower() in route_stops:
+                    # Filter buses for this route
+                    buses = Bus.objects.filter(route=route)
 
-                # If stop is provided, filter buses by the stop (only if stop is selected)
-                if stop and stop in route.stops.split(','):
-                    buses = buses.filter(route=route, schedules__departure_time=time)
+                    if time:
+                        buses = buses.filter(schedules__departure_time=time)
+                else:
+                    # If stop is not in the route, return no buses
+                    buses = []
 
-                # Get stops for the selected route
-                stops = [stop.strip() for stop in route.stops.split(',')]  # Split and clean stops
+                stops = [s.strip() for s in route.stops.split(',')]
 
             except Route.DoesNotExist:
                 buses = []
                 stops = []
-
         else:
             buses = []
             stops = []
 
-    # Handle GET request (initial page load)
     else:
-        # Show available routes in the form
-        routes = Route.objects.all()
-
-        # If route is selected, get the stops for that route
+        # GET request logic
         if 'route' in request.GET:
             route_id = request.GET.get('route')
             try:
                 route = Route.objects.get(id=route_id)
-                stops = [stop.strip() for stop in route.stops.split(',')]
+                stops = [s.strip() for s in route.stops.split(',')]
             except Route.DoesNotExist:
                 stops = []
 
-    # Return the rendered response
-    return render(request, 'bus_filter.html', {'routes': routes, 'stops': stops, 'buses': buses})
+    return render(request, 'bus_filter.html', {
+        'routes': routes,
+        'stops': stops,
+        'buses': buses,
+    })
 
 def register_bus(request, bus_id):
     bus = get_object_or_404(Bus, id=bus_id)

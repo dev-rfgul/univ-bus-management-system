@@ -21,6 +21,7 @@ class Bus(models.Model):
     capacity = models.PositiveIntegerField()
     available_seats = models.PositiveIntegerField()
     registered_users = models.ManyToManyField(User, related_name='buses', blank=True)
+    departure_time = models.TimeField(default='00:00:00')
 
     def __str__(self):
         return f"Bus {self.bus_number} - {self.driver_name}"

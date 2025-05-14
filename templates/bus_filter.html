@@ -3,53 +3,66 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Available Buses</title>
   </head>
   <body>
     <h2>Filter Buses</h2>
     <form method="POST">
       {% csrf_token %}
-      
-      <label for="route">Route:</label>
-      <select name="route" id="route" onchange="updateStops()">
+
+      <label for="route">Select Route:</label>
+      <select name="route" id="route">
         {% for route in routes %}
-          <option value="{{ route.id }}" data-stops="{{ route.stops }}">{{ route }}</option>
+        <option value="{{ route.id }}" {% if request.POST.route == route.id|stringformat:"s" %}selected{% endif %}>
+          {{ route }}
+        </option>
+        
         {% endfor %}
       </select>
 
-      <label for="stop">Stop:</label>
-      <select name="stop" id="stop">
-        {% if stops %}
-          {% for stop in stops %}
-            <option value="{{ stop }}">{{ stop }}</option>
-          {% endfor %}
-        {% else %}
-          <option value="">No stops available</option>
-        {% endif %}
-      </select>
+      <br />
 
-      <label for="time">Time:</label>
-      <input type="time" name="time" id="time" required>
+      <label for="stop">Enter Stop:</label>
+      <input
+        type="text"
+        name="stop"
+        id="stop"
+        placeholder="e.g., Central Market"
+        value="{{ request.POST.stop }}"
+      />
 
-      <button type="submit">Check Buses</button>
+      <br />
+
+      <label for="time">Select Time (optional):</label>
+      <input
+        type="time"
+        name="time"
+        id="time"
+        value="{{ request.POST.time }}"
+      />
+
+      <br />
+
+      <button type="submit">Find Buses</button>
     </form>
 
     <h2>Available Buses</h2>
     <ul>
       {% for bus in buses %}
-      <li>
-        {{ bus }} - Registered: {{ bus.registered_count }} 
-        {% if user.is_authenticated %}
-          <form method="post" action="{% url 'register_bus' bus.id %}">
-            {% csrf_token %}
-            <button type="submit">Register</button>
-          </form>
-        {% else %}
-          <p><a href="{% url 'login' %}">Login to Register</a></p>
-        {% endif %}
-      </li>
+        <li>
+        Bus Number:  {{ bus }} - remaining seats: {{ bus.available_seats }} Departure Time  {{bus.departure_time}}
+
+          {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'register_bus' bus.id %}">
+              {% csrf_token %}
+              <button type="submit">Register</button>
+            </form>
+          {% else %}
+            <p><a href="{% url 'login' %}">Login to Register</a></p>
+          {% endif %}
+        </li>
       {% empty %}
-      <li>No buses available for the selected route, stop, and time.</li>
+        <li>No buses available for the selected route, stop, and time.</li>
       {% endfor %}
     </ul>
   </body>
