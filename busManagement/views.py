@@ -117,30 +117,32 @@ def view_student_bookings(request):
 
 # Function to filter buses based on route and stop
 # and to show available buses for a specific route
+
 def available_buses(request):
     buses = []
-    routes = Route.objects.all()
 
     if request.method == 'POST':
-        stop = request.POST.get('stop')  # User-entered stop
+        stop = request.POST.get('stop')
+        start_location = request.POST.get('start_location')
 
-        if stop:
+        if stop and start_location:
             stop = stop.strip().lower()
-            matching_routes = []
+            start_location = start_location.strip().lower()
 
-            # Find all routes that include this stop
-            for route in routes:
+            matching_routes = []
+            for route in Route.objects.filter(start_location__iexact=start_location):
                 route_stops = [s.strip().lower() for s in route.stops.split(',') if s.strip()]
                 if stop in route_stops:
                     matching_routes.append(route)
 
-            # Collect buses from all matching routes
             buses = Bus.objects.filter(route__in=matching_routes)
+
+        else:
+            messages.error(request, "Both stop and starting location are required.")
 
     return render(request, 'bus_filter.html', {
         'buses': buses,
     })
-
 # Function to register a user for a bus
 def register_bus(request, bus_id):
     bus = get_object_or_404(Bus, id=bus_id)

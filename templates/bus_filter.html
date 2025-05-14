@@ -9,6 +9,8 @@
     <h2>Filter Buses</h2>
     <form method="POST">
       {% csrf_token %}
+      <label for="stop">Start Location :</label>
+      <input type="text" name="start_location" placeholder="e.g. main cafe" required class="form-input" />
       <label for="stop">Enter Your Stop:</label>
       <input type="text" name="stop" placeholder="e.g. main cafe" required class="form-input" />
       <button type="submit" class="btn">Find Buses</button>
