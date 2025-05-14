@@ -115,8 +115,7 @@ def view_student_bookings(request):
     student_bookings = StudentBooking.objects.all()
     return render(request, 'view_student_bookings.html', {'student_bookings': student_bookings})
 
-# Function to filter buses based on route and stop
-# and to show available buses for a specific route
+
 def available_buses(request):
     buses = []
     stops = []
@@ -125,25 +124,25 @@ def available_buses(request):
     if request.method == 'POST':
         route_id = request.POST.get('route')
         stop = request.POST.get('stop')  # User-entered stop
-        # time = request.POST.get('time')  # <-- no longer needed
+        time = request.POST.get('time')
 
         if route_id:
             try:
                 route = Route.objects.get(id=route_id)
-                route_stops = [s.strip().lower() for s in route.stops.split(',') if s.strip()]
-                stop = stop.strip().lower() if stop else ""
-                print(f"Selected route ID: {route_id}")
-                print(f"Route stops: {route_stops}")
-                print(f"User-entered stop: {stop.lower()}")
+                route_stops = [s.strip().lower() for s in route.stops.split(',')]
 
-
-                if stop in route_stops:
-                    # ✅ Only filter by route now
+                # Check if the stop is in the route
+                if stop and stop.lower() in route_stops:
+                    # Filter buses for this route
                     buses = Bus.objects.filter(route=route)
+
+                    if time:
+                        buses = buses.filter(schedules__departure_time=time)
                 else:
+                    # If stop is not in the route, return no buses
                     buses = []
 
-                stops = [s.strip() for s in route.stops.split(',') if s.strip()]
+                stops = [s.strip() for s in route.stops.split(',')]
 
             except Route.DoesNotExist:
                 buses = []
@@ -158,7 +157,7 @@ def available_buses(request):
             route_id = request.GET.get('route')
             try:
                 route = Route.objects.get(id=route_id)
-                stops = [s.strip() for s in route.stops.split(',') if s.strip()]
+                stops = [s.strip() for s in route.stops.split(',')]
             except Route.DoesNotExist:
                 stops = []
 
@@ -168,10 +167,9 @@ def available_buses(request):
         'buses': buses,
     })
 
-# Function to register a user for a bus
 def register_bus(request, bus_id):
     bus = get_object_or_404(Bus, id=bus_id)
     bus.registered_users.add(request.user)
     bus.available_seats -= 1
     bus.save()
-    return HttpResponse('Successfully registered for the bus')  # or show a success page
+    return redirect('available_buses')  # or show a success page
