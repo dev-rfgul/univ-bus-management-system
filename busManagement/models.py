@@ -16,16 +16,16 @@ class Route(models.Model):
 
 class Bus(models.Model):
     bus_number = models.CharField(max_length=10, unique=True)
-    driver_name = models.CharField(max_length=100)
+    driver = models.OneToOneField('Driver', on_delete=models.SET_NULL, null=True, blank=True)
     route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name='buses')
     capacity = models.PositiveIntegerField()
     available_seats = models.PositiveIntegerField()
     registered_users = models.ManyToManyField(User, related_name='buses', blank=True)
     departure_time = models.TimeField(default='00:00:00')
 
-    def __str__(self):
-        return f"Bus {self.bus_number} - {self.driver_name}"
-
+    def __str__(self):  
+        driver = getattr(self, 'driver', None)
+        return f"Bus {self.bus_number} - {driver.name if driver else 'No Driver Assigned'}"
 
 class Schedule(models.Model):
     bus = models.ForeignKey('Bus', on_delete=models.CASCADE, related_name='schedules')
@@ -51,7 +51,6 @@ class Driver(models.Model):
     name = models.CharField(max_length=100)
     license_number = models.CharField(max_length=20, unique=True)
     contact_number = models.CharField(max_length=15)
-    bus = models.OneToOneField(Bus, on_delete=models.CASCADE, related_name='driver')
 
     def __str__(self):
         return f"Driver {self.name} - License: {self.license_number}"
