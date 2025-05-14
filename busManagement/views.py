@@ -119,52 +119,25 @@ def view_student_bookings(request):
 # and to show available buses for a specific route
 def available_buses(request):
     buses = []
-    stops = []
     routes = Route.objects.all()
 
     if request.method == 'POST':
-        route_id = request.POST.get('route')
         stop = request.POST.get('stop')  # User-entered stop
-        # time = request.POST.get('time')  # <-- no longer needed
 
-        if route_id:
-            try:
-                route = Route.objects.get(id=route_id)
+        if stop:
+            stop = stop.strip().lower()
+            matching_routes = []
+
+            # Find all routes that include this stop
+            for route in routes:
                 route_stops = [s.strip().lower() for s in route.stops.split(',') if s.strip()]
-                stop = stop.strip().lower() if stop else ""
-                print(f"Selected route ID: {route_id}")
-                print(f"Route stops: {route_stops}")
-                print(f"User-entered stop: {stop.lower()}")
-
-
                 if stop in route_stops:
-                    # ✅ Only filter by route now
-                    buses = Bus.objects.filter(route=route)
-                else:
-                    buses = []
+                    matching_routes.append(route)
 
-                stops = [s.strip() for s in route.stops.split(',') if s.strip()]
-
-            except Route.DoesNotExist:
-                buses = []
-                stops = []
-        else:
-            buses = []
-            stops = []
-
-    else:
-        # GET request logic
-        if 'route' in request.GET:
-            route_id = request.GET.get('route')
-            try:
-                route = Route.objects.get(id=route_id)
-                stops = [s.strip() for s in route.stops.split(',') if s.strip()]
-            except Route.DoesNotExist:
-                stops = []
+            # Collect buses from all matching routes
+            buses = Bus.objects.filter(route__in=matching_routes)
 
     return render(request, 'bus_filter.html', {
-        'routes': routes,
-        'stops': stops,
         'buses': buses,
     })
 

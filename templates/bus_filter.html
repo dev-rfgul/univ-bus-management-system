@@ -9,42 +9,11 @@
     <h2>Filter Buses</h2>
     <form method="POST">
       {% csrf_token %}
-
-      <label for="route">Select Route:</label>
-      <select name="route" id="route">
-        {% for route in routes %}
-        <option value="{{ route.id }}" {% if request.POST.route == route.id|stringformat:"s" %}selected{% endif %}>
-          {{ route }}
-        </option>
-        
-        {% endfor %}
-      </select>
-
-      <br />
-
-      <label for="stop">Enter Stop:</label>
-      <input
-        type="text"
-        name="stop"
-        id="stop"
-        placeholder="e.g., Central Market"
-        value="{{ request.POST.stop }}"
-      />
-
-      <br />
-
-      <label for="time">Select Time (optional):</label>
-      <input
-        type="time"
-        name="time"
-        id="time"
-        value="{{ request.POST.time }}"
-      />
-
-      <br />
-
-      <button type="submit">Find Buses</button>
+      <label for="stop">Enter Your Stop:</label>
+      <input type="text" name="stop" placeholder="e.g. main cafe" required class="form-input" />
+      <button type="submit" class="btn">Find Buses</button>
     </form>
+    
 
     <h2>Available Buses</h2>
     <ul>
