@@ -31,8 +31,7 @@
 
         {% with route=bus.route %}
         <strong>Matching Route:</strong><br />
-        Route: number: {{ route.route_number }}  SP : ({{ route.start_location }} → FP: {{
-        route.end_location }})<br />
+        Route: number: {{ route.route_number }}  SP : ({{ route.start_location }} → FP: {{ route.end_location }})<br />
         Stops:
         <ul>
           <li>{{ route.stops }}</li>
