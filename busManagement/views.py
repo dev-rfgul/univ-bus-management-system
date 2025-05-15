@@ -120,29 +120,29 @@ def view_student_bookings(request):
 
 def available_buses(request):
     buses = []
+    matching_routes = []  # define here to avoid UnboundLocalError
 
     if request.method == 'POST':
-        stop = request.POST.get('stop')
-        start_location = request.POST.get('start_location')
+        start_location = request.POST.get('start_location', '').strip().lower()
+        stop = request.POST.get('stop', '').strip().lower()
 
-        if stop and start_location:
-            stop = stop.strip().lower()
-            start_location = start_location.strip().lower()
-
-            matching_routes = []
-            for route in Route.objects.filter(start_location__iexact=start_location):
+        if start_location and stop:
+            for route in Route.objects.all():
                 route_stops = [s.strip().lower() for s in route.stops.split(',') if s.strip()]
-                if stop in route_stops:
-                    matching_routes.append(route)
+
+                if start_location in route_stops and stop in route_stops:
+                    if route_stops.index(start_location) < route_stops.index(stop):
+                        matching_routes.append(route)
 
             buses = Bus.objects.filter(route__in=matching_routes)
-
         else:
-            messages.error(request, "Both stop and starting location are required.")
+            return HttpResponse("Both stop and starting location are required.")
 
     return render(request, 'bus_filter.html', {
         'buses': buses,
+        'routes': matching_routes
     })
+
 # Function to register a user for a bus
 def register_bus(request, bus_id):
     bus = get_object_or_404(Bus, id=bus_id)

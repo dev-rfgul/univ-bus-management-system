@@ -1,57 +1,154 @@
-from django.db import models
-from django.contrib.auth.models import User
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse
+from .models import Bus,Driver,Route,Schedule,StudentBooking
+# Create your views here.
+
+def home(request):
+    # return render(request, 'home.html')
+    return render(request, 'home.html', {'title': 'home'})
+def about(request):
+    return HttpResponse("this is about page")
+
+def add_bus(request):
+
+    if request.method == 'POST':
+        plate_number = request.POST.get('plate_number')
+        capacity = request.POST.get('capacity')
+        route = request.POST.get('route')
+
+        Bus.objects.create(
+            plate_number=plate_number,
+            capacity=capacity,
+            route=route
+        )
+
+        return HttpResponse("Bus added successfully")
+    return HttpResponse("Send a POST request")
+
+def add_driver(request):
+    if request.method=='POST':
+        name=request.POST.get('name'),
+        license_numeber=request.POST.get('license_numeber'),
+        contact_number=request.POST.get('contact_number'),
+        bus=request.POST.get('bus'),
+
+        Driver.objects.create(
+            name=name,
+            license_number=license_numeber,
+            contact_number=contact_number,
+            bus=bus
+        )
+        return HttpResponse("Driver added successfully")
+    return HttpResponse("Send a POST request")
+
+def add_route(request):
+    if request.method=='POST':
+        route_number=request.POST.get('route_number'),
+        start_location=request.POST.get('start_location'),
+        end_location=request.POST.get('end_location'),
+        distance=request.POST.get('distance'),
+
+        Route.objects.create(
+            route_number=route_number,
+            start_location=start_location,
+            end_location=end_location,
+            distance=distance
+        )
+        return HttpResponse("Route added successfully")
+    return HttpResponse("Send a POST request")
+
+def add_schedule(request):
+    if request.method=='POST':
+        bus=request.POST.get('bus'),
+        route=request.POST.get('route'),
+        departure_time=request.POST.get('departure_time'),
+        arrival_time=request.POST.get('arrival_time'),
+
+        Schedule.objects.create(
+            bus=bus,
+            route=route,
+            departure_time=departure_time,
+            arrival_time=arrival_time
+        )
+        return HttpResponse("Schedule added successfully")
+    return HttpResponse("Send a POST request")
+
+def add_student_booking(request):
+
+    if request.method=='POST':
+        student_name=request.POST.get('student_name'),
+        bus=request.POST.get('bus'),
+        route=request.POST.get('route'),
+        booking_date=request.POST.get('booking_date'),
+        seats_booked=request.POST.get('seats_booked'),
+
+        StudentBooking.objects.create(
+            student_name=student_name,
+            bus=bus,
+            route=route,
+            booking_date=booking_date,
+            seats_booked=seats_booked
+        )
+        return HttpResponse("Student Booking added successfully")
+    return HttpResponse("Send a POST request")
+
+def view_buses(request):
+    buses = Bus.objects.all()
+    context={'buses': buses}
+    return render(request, 'view_buses.html', context)
+
+def view_drivers(request):
+    drivers = Driver.objects.all()
+    context={'drivers': drivers}
+    return render(request, 'view_drivers.html', context)
+
+def view_routes(request):
+    routes = Route.objects.all()
+    context = {'routes': routes}
+    return render(request, 'view_routes.html', context)
+
+def view_schedules(request):
+    schedules = Schedule.objects.all()
+    return render(request, 'view_schedules.html', {'schedules': schedules})
+
+def view_student_bookings(request):
+    student_bookings = StudentBooking.objects.all()
+    return render(request, 'view_student_bookings.html', {'student_bookings': student_bookings})
+
+# Function to filter buses based on route and stop
+# and to show available buses for a specific route
+
+def available_buses(request):
+    buses = []
+
+    if request.method == 'POST':
+        stop = request.POST.get('stop')
+        start_location = request.POST.get('start_location')
+
+        if stop and start_location:
+            stop = stop.strip().lower()
+            start_location = start_location.strip().lower()
+
+            matching_routes = []
+            for route in Route.objects.filter(start_location__iexact=start_location):
+                route_stops = [s.strip().lower() for s in route.stops.split(',') if s.strip()]
+                if stop in route_stops:
+                    matching_routes.append(route)
+
+            buses = Bus.objects.filter(route__in=matching_routes)
+            print(buses)
+        else:
+            return HttpResponse(request, "Both stop and starting location are required.")
+
+    return render(request, 'bus_filter.html', {
+        'buses': buses,
+    })
 
 
-class Route(models.Model):
-    route_number = models.CharField(max_length=10, unique=True)
-    start_location = models.CharField(max_length=100)
-    end_location = models.CharField(max_length=100)
-    distance = models.FloatField()
-    stops = models.TextField(default='')  # comma-separated
-    time = models.TimeField(default='00:00:00')
-
-    def __str__(self):
-        return f"Route {self.route_number} - {self.start_location} to {self.end_location}"
-
-
-class Bus(models.Model):
-    bus_number = models.CharField(max_length=10, unique=True)
-    driver = models.OneToOneField('Driver', on_delete=models.SET_NULL, null=True, blank=True)
-    route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name='buses')
-    capacity = models.PositiveIntegerField()
-    available_seats = models.PositiveIntegerField()
-    registered_users = models.ManyToManyField(User, related_name='buses', blank=True)
-    departure_time = models.TimeField(default='00:00:00')
-
-    def __str__(self):
-      driver = getattr(self, 'driver', None)
-      return f"Bus {self.bus_number} - {driver.name if driver else 'No Driver Assigned'}"
-
-class Schedule(models.Model):
-    bus = models.ForeignKey('Bus', on_delete=models.CASCADE, related_name='schedules')
-    route = models.ForeignKey('Route', on_delete=models.CASCADE, related_name='schedules')
-    departure_time = models.TimeField()
-    arrival_time = models.TimeField()
-
-    def __str__(self):
-        return f"Schedule for {self.bus} on {self.route}"
-
-
-class StudentBooking(models.Model):
-    student_name = models.CharField(max_length=100)
-    bus = models.ForeignKey(Bus, on_delete=models.CASCADE, related_name='bookings')
-    booking_date = models.DateField()
-    seats_booked = models.PositiveIntegerField()
-
-    def __str__(self):
-        return f"Booking by {self.student_name} for {self.bus} on {self.bus.route}"
-
-
-class Driver(models.Model):
-    name = models.CharField(max_length=100)
-    license_number = models.CharField(max_length=20, unique=True)
-    contact_number = models.CharField(max_length=15)
-    bus = models.OneToOneField(Bus, on_delete=models.CASCADE, related_name='driver')
-
-    def __str__(self):
-        return f"Driver {self.name} - License: {self.license_number}"
+# Function to register a user for a bus
+def register_bus(request, bus_id):
+    bus = get_object_or_404(Bus, id=bus_id)
+    bus.registered_users.add(request.user)
+    bus.available_seats -= 1
+    bus.save()
+    return HttpResponse('Successfully registered for the bus')  # or show a success page

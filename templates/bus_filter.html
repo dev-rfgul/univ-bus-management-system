@@ -9,31 +9,47 @@
     <h2>Filter Buses</h2>
     <form method="POST">
       {% csrf_token %}
-      <label for="stop">Start Location :</label>
-      <input type="text" name="start_location" placeholder="e.g. main cafe" required class="form-input" />
+      <label for="start_location">Start Location:</label>
+      <input
+        type="text"
+        name="start_location"
+        placeholder="e.g. main cafe"
+        required
+      />
       <label for="stop">Enter Your Stop:</label>
-      <input type="text" name="stop" placeholder="e.g. main cafe" required class="form-input" />
-      <button type="submit" class="btn">Find Buses</button>
+      <input type="text" name="stop" placeholder="e.g. main cafe" required />
+      <button type="submit">Find Buses</button>
     </form>
-    
 
     <h2>Available Buses</h2>
     <ul>
       {% for bus in buses %}
-        <li>
-        Bus Number:  {{ bus }} - remaining seats: {{ bus.available_seats }} Departure Time  {{bus.departure_time}}
+      <li style="margin-bottom: 20px">
+        <strong>Bus Number:</strong> {{ bus }}<br />
+        <strong>Remaining Seats:</strong> {{ bus.available_seats }}<br />
+        <strong>Departure Time:</strong> {{ bus.departure_time }}<br />
 
-          {% if user.is_authenticated %}
-            <form method="POST" action="{% url 'register_bus' bus.id %}">
-              {% csrf_token %}
-              <button type="submit">Register</button>
-            </form>
-          {% else %}
-            <p><a href="{% url 'login' %}">Login to Register</a></p>
-          {% endif %}
-        </li>
+        {% with route=bus.route %}
+        <strong>Matching Route:</strong><br />
+        Route: number: {{ route.route_number }}  SP : ({{ route.start_location }} → FP: {{
+        route.end_location }})<br />
+        Stops:
+        <ul>
+          <li>{{ route.stops }}</li>
+        </ul>
+        {% endwith %} 
+        
+        {% if user.is_authenticated %}
+        <form method="POST" action="{% url 'register_bus' bus.id %}">
+          {% csrf_token %}
+          <button type="submit">Register</button>
+        </form>
+        {% else %}
+        <p><a href="{% url 'login' %}">Login to Register</a></p>
+        {% endif %}
+      </li>
       {% empty %}
-        <li>No buses available for the selected route, stop, and time.</li>
+      <li>No buses available for the selected route and stop.</li>
       {% endfor %}
     </ul>
   </body>
