@@ -129,6 +129,7 @@ def available_buses(request):
         if start_location and stop:
             for route in Route.objects.all():
                 route_stops = [s.strip().lower() for s in route.stops.split(',') if s.strip()]
+                print(route_stops)
 
                 if start_location in route_stops and stop in route_stops:
                     if route_stops.index(start_location) < route_stops.index(stop):
