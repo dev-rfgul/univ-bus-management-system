@@ -6,6 +6,7 @@ from .models import Bus,Driver,Route,Schedule,StudentBooking
 def home(request):
     # return render(request, 'home.html')
     return render(request, 'home.html', {'title': 'home'})
+
 def about(request):
     return HttpResponse("this is about page")
 
