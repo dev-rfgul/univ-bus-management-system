@@ -1,3 +1,4 @@
+{% extends "base.html" %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -6,6 +7,7 @@
     <title>Document</title>
   </head>
   <body>
+    {%block content%}
     <h2>Available Buses</h2>
     <ul>
       {% for bus in buses %}
@@ -24,5 +26,6 @@
       <li>No buses available for the selected route and time.</li>
       {% endfor %}
     </ul>
+    {%endblock content%}
   </body>
 </html>
