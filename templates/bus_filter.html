@@ -9,6 +9,7 @@
   </head>
   <body>
     {%block content%}
+    <main>
     <h2>Filter Buses</h2>
     <form method="POST">
       {% csrf_token %}
@@ -56,6 +57,7 @@
       {% endfor %}
     </ul>
 
+  </main>
     {%endblock content%}
   </body>
 </html>
