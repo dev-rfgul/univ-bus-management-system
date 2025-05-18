@@ -15,6 +15,7 @@
             <th>Bus ID</th>
             <th>Bus Number</th>
             <th>Driver Name</th>
+            <th>Driver Contact</th>
             <th>Route</th>
             <th>Capacity</th>
             <th>available_seat</th>
@@ -23,7 +24,8 @@
         <tr>
             <td>{{ bus.id }}</td>
             <td>{{ bus.bus_number }}</td>
-            <td>{{ bus.driver_name }}</td>
+            <td>{{ bus.driver.name }}</td>
+            <td>{{ bus.driver.contact_number }}</td>
             <td>{{ bus.route}}</td>
             <td>{{ bus.capacity }}</td>
             <td>{{ bus.available_seats }}</td>
