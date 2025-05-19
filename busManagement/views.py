@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .models import Bus,Driver,Route,Schedule,StudentBooking
+from .utils import find_route
 # Create your views here.
 
 def home(request):
@@ -130,7 +131,7 @@ def available_buses(request):
         if start_location and stop:
             for route in Route.objects.all():
                 route_stops = [s.strip().lower() for s in route.stops.split(',') if s.strip()]
-                print(route_stops)
+                # print(route_stops)
 
                 if start_location in route_stops and stop in route_stops:
                     if route_stops.index(start_location) < route_stops.index(stop):
@@ -152,3 +153,24 @@ def register_bus(request, bus_id):
     bus.available_seats -= 1
     bus.save()
     return HttpResponse('Successfully registered for the bus')  # or show a success page
+
+def route_view(request):
+    if request.method == 'POST':
+        start_location = request.POST.get('start_location', '').strip().lower()
+        stop = request.POST.get('stop', '').strip().lower()
+
+        if not start_location or not stop:
+            return JsonResponse({'error': 'Start and end stops are required'}, status=400)
+
+        result = find_route(start_location, stop)
+
+        if not result:
+            return JsonResponse({'message': 'No route found'}, status=404)
+
+        return JsonResponse(result)
+
+    # GET request — render the page with default route data
+    routes = Route.objects.all()
+    return render(request, 'bus_filter.html', {
+        'routes': routes
+    })
