@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
 from .models import Bus,Driver,Route,Schedule,StudentBooking
+from forms import UserSignInForm,UserSignupForm
+
 from .utils import find_route
 # Create your views here.
 
@@ -155,6 +157,7 @@ def register_bus(request, bus_id):
     return HttpResponse('Successfully registered for the bus')  # or show a success page
 
 def route_view(request):
+
     if request.method == 'POST':
         start_location = request.POST.get('start_location', '').strip().lower()
         stop = request.POST.get('stop', '').strip().lower()
@@ -174,3 +177,12 @@ def route_view(request):
     return render(request, 'bus_filter.html', {
         'routes': routes
     })
+
+
+def signup(request):
+    if request.method=='POST':
+        user=UserSignupForm(request.POST)
+        if user.is_valid():
+            user.save()
+    form=UserSignupForm()
+    return render(request,'signup.html',{'form',form})    
