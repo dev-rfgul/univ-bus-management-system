@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
 from .models import Bus,Driver,Route,Schedule,StudentBooking
 from .forms import UserSignInForm,UserSignupForm
+from django.contrib import messages
+from django.contrib.auth import login
 
 from .utils import find_route
 # Create your views here.
@@ -180,18 +182,59 @@ def route_view(request):
 
 
 
+# def signup(request):
+#     if request.method == 'POST':
+#         user = UserSignupForm(request.POST)
+#         if user.is_valid():
+#             user.save()
+#     form = UserSignupForm()
+#     return render(request, 'signup.html', {'form': form})
+
+# def signin(request):
+#     if request.method=='POST':
+#         user=UserSignInForm(request.POST)
+#         if user.is_valid():
+#             user.save()
+#     form=UserSignInForm()
+#     return render(request,'login.html',{'form':form})
+
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
+from django.contrib import messages
+from .forms import UserSignupForm, UserSignInForm
+from .models import User
+
 def signup(request):
     if request.method == 'POST':
-        user = UserSignupForm(request.POST)
-        if user.is_valid():
-            user.save()
-    form = UserSignupForm()
+        form = UserSignupForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Account created successfully! Please log in.')
+            return redirect('login')  # Redirect to login page after successful signup
+    else:
+        form = UserSignupForm()
     return render(request, 'signup.html', {'form': form})
 
 def signin(request):
-    if request.method=='POST':
-        user=UserSignInForm(request.POST)
-        if user.is_valid():
-            user.save()
-    form=UserSignInForm()
-    return render(request,'login.html',{'form':form})
+    if request.method == 'POST':
+        form = UserSignInForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            
+            # Get user by email and authenticate
+            try:
+                user_obj = User.objects.get(email=email)
+                user = authenticate(request, username=user_obj.username, password=password)
+                if user:
+                    login(request, user)
+                    messages.success(request, 'Successfully logged in!')
+                    return redirect('home')
+                else:
+                    messages.error(request, 'Invalid email or password.')
+            except User.DoesNotExist:
+                messages.error(request, 'Invalid email or password.')
+    else:
+        form = UserSignInForm()
+    return render(request, 'login.html', {'form': form})
