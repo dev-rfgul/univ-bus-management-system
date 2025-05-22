@@ -188,4 +188,10 @@ def signup(request):
     form = UserSignupForm()
     return render(request, 'signup.html', {'form': form})
 
-
+def signin(request):
+    if request.method=='POST':
+        user=UserSignInForm(request.POST)
+        if user.is_valid():
+            user.save()
+    form=UserSignInForm()
+    return render(request,'login.html',{'form':form})

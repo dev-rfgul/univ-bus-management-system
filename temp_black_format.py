@@ -1,11 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .models import Bus,Driver,Route,Schedule,StudentBooking
+from .forms import UserSignInForm,UserSignupForm
+
+from .utils import find_route
 # Create your views here.
 
 def home(request):
     # return render(request, 'home.html')
     return render(request, 'home.html', {'title': 'home'})
+
 def about(request):
     return HttpResponse("this is about page")
 
@@ -120,30 +124,29 @@ def view_student_bookings(request):
 
 def available_buses(request):
     buses = []
+    matching_routes = []  # define here to avoid UnboundLocalError
 
     if request.method == 'POST':
-        stop = request.POST.get('stop')
-        start_location = request.POST.get('start_location')
+        start_location = request.POST.get('start_location', '').strip().lower()
+        stop = request.POST.get('stop', '').strip().lower()
 
-        if stop and start_location:
-            stop = stop.strip().lower()
-            start_location = start_location.strip().lower()
-
-            matching_routes = []
-            for route in Route.objects.filter(start_location__iexact=start_location):
+        if start_location and stop:
+            for route in Route.objects.all():
                 route_stops = [s.strip().lower() for s in route.stops.split(',') if s.strip()]
-                if stop in route_stops:
-                    matching_routes.append(route)
+                # print(route_stops)
+
+                if start_location in route_stops and stop in route_stops:
+                    if route_stops.index(start_location) < route_stops.index(stop):
+                        matching_routes.append(route)
 
             buses = Bus.objects.filter(route__in=matching_routes)
-            print(buses)
         else:
-            return HttpResponse(request, "Both stop and starting location are required.")
+            return HttpResponse("Both stop and starting location are required.")
 
     return render(request, 'bus_filter.html', {
         'buses': buses,
+        'routes': matching_routes
     })
-
 
 # Function to register a user for a bus
 def register_bus(request, bus_id):
@@ -152,3 +155,43 @@ def register_bus(request, bus_id):
     bus.available_seats -= 1
     bus.save()
     return HttpResponse('Successfully registered for the bus')  # or show a success page
+
+def route_view(request):
+
+    if request.method == 'POST':
+        start_location = request.POST.get('start_location', '').strip().lower()
+        stop = request.POST.get('stop', '').strip().lower()
+
+        if not start_location or not stop:
+            return JsonResponse({'error': 'Start and end stops are required'}, status=400)
+
+        result = find_route(start_location, stop)
+
+        if not result:
+            return JsonResponse({'message': 'No route found'}, status=404)
+
+        return JsonResponse(result)
+
+    # GET request — render the page with default route data
+    routes = Route.objects.all()
+    return render(request, 'bus_filter.html', {
+        'routes': routes
+    })
+
+
+
+def signup(request):
+    if request.method == 'POST':
+        user = UserSignupForm(request.POST)
+        if user.is_valid():
+            user.save()
+    form = UserSignupForm()
+    return render(request, 'signup.html', {'form': form})
+
+def signin(request):
+    if request.method=='POST':
+        user=UserSignInForm(request.POST)
+        if user.is_valid():
+            user.save()
+    form=UserSignInForm()
+    return render(request,'login.html',{'form':form})
