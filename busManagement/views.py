@@ -4,7 +4,11 @@ from .models import Bus,Driver,Route,Schedule,StudentBooking
 from .forms import UserSignInForm,UserSignupForm
 from django.contrib import messages
 from django.contrib.auth import login
-
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
+# from django.contrib import messages
+# from .forms import UserSignupForm, UserSignInForm
+from .models import User
 from .utils import find_route
 # Create your views here.
 
@@ -199,11 +203,7 @@ def route_view(request):
 #     return render(request,'login.html',{'form':form})
 
 
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
-from django.contrib import messages
-from .forms import UserSignupForm, UserSignInForm
-from .models import User
+
 
 def signup(request):
     if request.method == 'POST':
@@ -238,3 +238,7 @@ def signin(request):
     else:
         form = UserSignInForm()
     return render(request, 'login.html', {'form': form})
+
+
+
+
