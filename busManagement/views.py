@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
 from .models import Bus,Driver,Route,Schedule,StudentBooking
-from forms import UserSignInForm,UserSignupForm
+from .forms import UserSignInForm,UserSignupForm
 
 from .utils import find_route
 # Create your views here.
@@ -179,10 +179,13 @@ def route_view(request):
     })
 
 
+
 def signup(request):
-    if request.method=='POST':
-        user=UserSignupForm(request.POST)
+    if request.method == 'POST':
+        user = UserSignupForm(request.POST)
         if user.is_valid():
             user.save()
-    form=UserSignupForm()
-    return render(request,'signup.html',{'form',form})    
+    form = UserSignupForm()
+    return render(request, 'signup.html', {'form': form})
+
+
