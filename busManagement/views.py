@@ -222,7 +222,8 @@ def signin(request):
         form = UserSignInForm()
     return render(request, 'login.html', {'form': form})
 
-
+def contact_thanks(request):
+    return render(request,'thanks.html')
 
 
 def contact(request):
@@ -233,8 +234,8 @@ def contact(request):
 
         if name and email and message: 
             ContactMessage.objects.create(name=name,email=email,message=message)
-            # return redirect('contact_thanks') 
-            return HttpResponse("form submitted successfully")
+            return redirect('contact_thanks') 
+            # return HttpResponse("form submitted successfully")
         else:
             error="Please fill all the details"
             return render(request,'contact.html',{'error':error,'name':name, 'message':message})
