@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,include
 
 from .import views
 
@@ -18,5 +18,6 @@ urlpatterns = [
     path('add_student_booking/',views.add_student_booking,name='add_student_booking'),
     path('view_student_booking/',views.view_student_bookings,name='view_student_booking'),
     path('buses/', views.available_buses, name='available_buses'),
-    path('buses/register/<int:bus_id>/', views.register_bus, name='register_bus')
+    path('buses/register/<int:bus_id>/', views.register_bus, name='register_bus'),
+    path('accounts/',include("allauth.urls"))
 ]

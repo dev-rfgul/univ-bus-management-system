@@ -1,4 +1,4 @@
-
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -12,6 +12,13 @@
       {% csrf_token %} 
       {{ form.as_p }}
       <input type="submit" value="Sign Up" />
+          <div class="text-center my-3">or</div>
+
+        <a href="{% provider_login_url 'google' %}" class="btn btn-outline-primary w-100">
+          Signup with Google
+        </a>
+
+      </div>
     </form>
   </body>
 </html>
