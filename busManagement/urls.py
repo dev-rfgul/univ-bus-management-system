@@ -19,5 +19,6 @@ urlpatterns = [
     path('view_student_booking/',views.view_student_bookings,name='view_student_booking'),
     path('buses/', views.available_buses, name='available_buses'),
     path('buses/register/<int:bus_id>/', views.register_bus, name='register_bus'),
+    #to handle the allauth urls,  
     path('accounts/',include("allauth.urls"))
 ]

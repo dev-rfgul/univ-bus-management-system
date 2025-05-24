@@ -2,11 +2,18 @@ from django import forms
 from .models import User
 
 class UserSignupForm(forms.ModelForm):
-    class Meta:
-        model = User  # 'model' should be lowercase
-        fields = ('username','email','password',)  # '__all__' should be a string, but the syntax is correct
+    password = forms.CharField(widget=forms.PasswordInput)
 
-class UserSignInForm(forms.ModelForm):  # Naming conventions - class name should be PascalCase
     class Meta:
         model = User
-        fields = ('email','password',)  
+        fields = ('username', 'email', 'password')
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])  # Hash the password!
+        if commit:
+            user.save()
+        return user
+class UserSignInForm(forms.Form):
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput) 

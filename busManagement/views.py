@@ -216,29 +216,66 @@ def signup(request):
         form = UserSignupForm()
     return render(request, 'signup.html', {'form': form})
 
+import logging
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from .forms import UserSignInForm
+from django.contrib.auth.models import User
+
+# Set up a logger
+logger = logging.getLogger(__name__)
+
 def signin(request):
+    logger.debug("Signin view called.")
+    print("Signin view called.")
+
     if request.method == 'POST':
+        print("Request method is POST.")
+        logger.debug("Request method is POST.")
         form = UserSignInForm(request.POST)
+
         if form.is_valid():
+            print("Form is valid.")
+            logger.debug("Form is valid.")
+
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            
-            # Get user by email and authenticate
+            print(f"Email entered: {email}")
+            print(f"Password entered: {password}")
+            logger.debug(f"Email entered: {email}")
+            logger.debug(f"Password entered: {password}")
+
             try:
                 user_obj = User.objects.get(email=email)
+                print(f"User found: {user_obj}")
+                logger.debug(f"User found: {user_obj}")
+
                 user = authenticate(request, username=user_obj.username, password=password)
+
                 if user:
+                    print("Authentication successful.")
+                    logger.debug("Authentication successful.")
                     login(request, user)
                     messages.success(request, 'Successfully logged in!')
                     return redirect('home')
                 else:
+                    print("Authentication failed.")
+                    logger.debug("Authentication failed.")
                     messages.error(request, 'Invalid email or password.')
             except User.DoesNotExist:
+                print("User does not exist.")
+                logger.debug("User does not exist.")
                 messages.error(request, 'Invalid email or password.')
+        else:
+            print("Form is not valid.")
+            logger.debug("Form is not valid.")
+            print(form.errors)
+            logger.debug(form.errors)
     else:
+        print("Request method is GET.")
+        logger.debug("Request method is GET.")
         form = UserSignInForm()
+
     return render(request, 'login.html', {'form': form})
-
-
-
 

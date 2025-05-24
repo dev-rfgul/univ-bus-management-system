@@ -149,6 +149,7 @@ ACCOUNT_LOGOUT_REDIRECT_URL='login'
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
+            
            
         },
         'SCOPE': ['profile', 'email'],
@@ -156,6 +157,6 @@ SOCIALACCOUNT_PROVIDERS = {
         'METHOD': 'oauth2',
         'VERIFIED_EMAIL': True,
     },
+ 
 }
-
 
