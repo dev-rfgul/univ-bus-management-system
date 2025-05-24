@@ -156,6 +156,6 @@ SOCIALACCOUNT_PROVIDERS = {
         'METHOD': 'oauth2',
         'VERIFIED_EMAIL': True,
     },
- 
 }
+
 
