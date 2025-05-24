@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
-from .models import Bus,Driver,Route,Schedule,StudentBooking
+from .models import Bus,Driver,Route,Schedule,StudentBooking, ContactMessage
 from .forms import UserSignInForm,UserSignupForm
 from django.contrib import messages
 from django.contrib.auth import login
@@ -186,23 +186,6 @@ def route_view(request):
 
 
 
-# def signup(request):
-#     if request.method == 'POST':
-#         user = UserSignupForm(request.POST)
-#         if user.is_valid():
-#             user.save()
-#     form = UserSignupForm()
-#     return render(request, 'signup.html', {'form': form})
-
-# def signin(request):
-#     if request.method=='POST':
-#         user=UserSignInForm(request.POST)
-#         if user.is_valid():
-#             user.save()
-#     form=UserSignInForm()
-#     return render(request,'login.html',{'form':form})
-
-
 
 
 def signup(request):
@@ -243,5 +226,19 @@ def signin(request):
 
 
 def contact(request):
+    if request.method=='POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+
+        if name and email and message: 
+            ContactMessage.objects.create(name=name,email=email,message=message)
+            # return redirect('contact_thanks') 
+            return HttpResponse("form submitted successfully")
+        else:
+            error="Please fill all the details"
+            return render(request,'contact.html',{'error':error,'name':name, 'message':message})
+            
     return render(request, 'contact.html', {'title': 'Contact Us'})
             
+

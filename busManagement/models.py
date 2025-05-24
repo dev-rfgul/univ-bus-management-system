@@ -13,7 +13,6 @@ class Route(models.Model):
     def __str__(self):
         return f"Route {self.route_number} - {self.start_location} to {self.end_location}"
 
-
 class Bus(models.Model):
     bus_number = models.CharField(max_length=10, unique=True)
     driver = models.OneToOneField('Driver', on_delete=models.SET_NULL, null=True, blank=True)
@@ -36,7 +35,6 @@ class Schedule(models.Model):
     def __str__(self):
         return f"Schedule for {self.bus} on {self.route}"
 
-
 class StudentBooking(models.Model):
     student_name = models.CharField(max_length=100)
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE, related_name='bookings')
@@ -46,7 +44,6 @@ class StudentBooking(models.Model):
     def __str__(self):
         return f"Booking by {self.student_name} for {self.bus} on {self.bus.route}"
 
-
 class Driver(models.Model):
     name = models.CharField(max_length=100)
     license_number = models.CharField(max_length=20, unique=True)
@@ -54,3 +51,12 @@ class Driver(models.Model):
 
     def __str__(self):
         return f"Driver {self.name} - License: {self.license_number}"
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Contact from {self.name} - {self.email}"

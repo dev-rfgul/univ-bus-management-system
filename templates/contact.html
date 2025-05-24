@@ -1,21 +1,88 @@
-{% extends "base.html" %}
-{% block content %}
-  <section class="contact-section" style="width: 100%; max-width: 1200px; background: rgba(12, 28, 44, 0.7); backdrop-filter: blur(10px); border-radius: 16px; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7); padding: 40px; margin-top: 60px; border: 1px solid rgba(255, 255, 255, 0.1);">
-    <h2 class="section-heading" style="margin-bottom: 40px;">Contact Us</h2>
-    <form method="POST" action="/send-message" style="display: flex; flex-direction: column; gap: 20px;">
-      <input type="text" name="name" placeholder="Your Name" required
-        style="padding: 15px 20px; border-radius: 12px; border: none; background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; outline: none;">
-      
-      <input type="email" name="email" placeholder="Your Email" required
-        style="padding: 15px 20px; border-radius: 12px; border: none; background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; outline: none;">
+{% extends "base.html" %} {% block content %}
+<section
+  class="contact-section"
+  style="
+    width: 100%;
+    max-width: 1200px;
+    background: rgba(12, 28, 44, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7);
+    padding: 40px;
+    margin-top: 60px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  "
+>
+  <h2 class="section-heading" style="margin-bottom: 40px">Contact Us</h2>
+  <form method="POST" style="display: flex; flex-direction: column; gap: 20px">
+    {% csrf_token %} 
+    <input
+      type="text"
+      name="name"
+      placeholder="Your Name"
+      required
+      style="
+        padding: 15px 20px;
+        border-radius: 12px;
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-size: 1rem;
+        outline: none;
+      "
+    />
 
-      <textarea name="message" rows="6" placeholder="Your Message" required
-        style="padding: 15px 20px; border-radius: 12px; border: none; background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; resize: none; outline: none;"></textarea>
-      
-      <button type="submit"
-        style="background: linear-gradient(145deg, #2980b9, #3498db); color: white; border: none; padding: 15px 30px; border-radius: 30px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 8px 15px rgba(52, 152, 219, 0.4);">
+    <input
+      type="email"
+      name="email"
+      placeholder="Your Email"
+      required
+      style="
+        padding: 15px 20px;
+        border-radius: 12px;
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-size: 1rem;
+        outline: none;
+      "
+    />
+
+    <textarea
+      name="message"
+      rows="6"
+      placeholder="Your Message"
+      required
+      style="
+        padding: 15px 20px;
+        border-radius: 12px;
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-size: 1rem;
+        resize: none;
+        outline: none;
+      "
+    ></textarea>
+
+      <button
+        type="submit"
+        style="
+          background: linear-gradient(145deg, #2980b9, #3498db);
+          color: white;
+          border: none;
+          padding: 15px 30px;
+          border-radius: 30px;
+          font-size: 1.1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          box-shadow: 0 8px 15px rgba(52, 152, 219, 0.4);
+        "
+      >
         Send Message
       </button>
-    </form>
-  </section>
+
+  </form>
+</section>
 {% endblock %}
