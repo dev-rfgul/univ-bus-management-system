@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
+
 # from django.contrib import messages
 # from .forms import UserSignupForm, UserSignInForm
 from .models import User
@@ -102,6 +104,7 @@ def add_student_booking(request):
         return HttpResponse("Student Booking added successfully")
     return HttpResponse("Send a POST request")
 
+@login_required
 def view_buses(request):
     buses = Bus.objects.all()
     context={'buses': buses}
@@ -127,7 +130,7 @@ def view_student_bookings(request):
 
 # Function to filter buses based on route and stop
 # and to show available buses for a specific route
-
+@login_required
 def available_buses(request):
     buses = []
     matching_routes = []  # define here to avoid UnboundLocalError
@@ -184,10 +187,6 @@ def route_view(request):
         'routes': routes
     })
 
-
-
-
-
 def signup(request):
     if request.method == 'POST':
         form = UserSignupForm(request.POST)
@@ -224,7 +223,6 @@ def signin(request):
 
 def contact_thanks(request):
     return render(request,'thanks.html')
-
 
 def contact(request):
     if request.method=='POST':
