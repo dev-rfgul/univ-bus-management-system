@@ -158,6 +158,7 @@ def available_buses(request):
     })
 
 # Function to register a user for a bus
+@login_required
 def register_bus(request, bus_id):
     bus = get_object_or_404(Bus, id=bus_id)
     bus.registered_users.add(request.user)
