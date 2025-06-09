@@ -6,7 +6,7 @@
     <title>Document</title>
   </head>
 
-     <style>
+    <style>
       /* Reset */
       * {
         margin: 0;
@@ -428,12 +428,11 @@
       
     
       <ul class="nav-menu">
-        <li><a href="{% url 'signup' %}" class="logo">signup</a></li>
-        <li><a href="{% url 'login' %}" class="logo">login</a></li>
         <li><a href="{% url 'available_buses' %}">Find Bus</a></li>
         <li><a href="{% url 'view_buses' %}">View Buses</a></li>
         <li><a href="{% url 'view_route' %}">Routes</a></li>
-        <li><a href="{% url 'contact'%}">Contact</a></li>
+        <li><a href="{% url 'signup' %}">Signup</a></li>
+        <li><a href="{% url 'login' %}">Login</a></li>
       </ul> 
     </nav>
     {%block content%}{%endblock %}

@@ -36,7 +36,7 @@ class Schedule(models.Model):
         return f"Schedule for {self.bus} on {self.route}"
 
 class StudentBooking(models.Model):
-    student_name = models.CharField(max_length=100)
+    student_name = models.CharField(max_length=100,default='')
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE, related_name='bookings')
     booking_date = models.DateField()
     seats_booked = models.PositiveIntegerField()
