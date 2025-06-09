@@ -10,7 +10,9 @@ from django.contrib.auth.decorators import login_required
 
 # from django.contrib import messages
 # from .forms import UserSignupForm, UserSignInForm
-from .models import User
+from django.contrib.auth  import get_user_model 
+
+User=get_user_model()
 from .utils import find_route
 # Create your views here.
 

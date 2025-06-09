@@ -1,5 +1,8 @@
 from django import forms
-from .models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 
 class UserSignupForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -14,6 +17,8 @@ class UserSignupForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
 class UserSignInForm(forms.Form):
     email = forms.EmailField()
-    password = forms.CharField(widget=forms.PasswordInput) 
+    password = forms.CharField(widget=forms.PasswordInput)
