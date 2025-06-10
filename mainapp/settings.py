@@ -150,8 +150,7 @@ ACCOUNT_LOGOUT_REDIRECT_URL='login'
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': 'YOUR_GOOGLE_CLIENT_ID',
-            'secret': 'YOUR_GOOGLE_CLIENT_SECRET',
+            
             
         },
         'SCOPE': ['profile', 'email'],
