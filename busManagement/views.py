@@ -3,9 +3,8 @@ from django.http import HttpResponse, JsonResponse
 from .models import Bus,Driver,Route,Schedule,StudentBooking, ContactMessage,CustomUser
 from .forms import UserSignInForm,UserSignupForm
 from django.contrib import messages
-from django.contrib.auth import login
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate,logout as auth_logout
 from django.contrib.auth.decorators import login_required
 
 # from django.contrib import messages
@@ -286,3 +285,7 @@ def driver_portal(request):
 def my_registered_buses(request):
     user_buses = request.user.buses.select_related('driver', 'route')
     return render(request, 'my_registered_bus.html', {'buses': user_buses})
+
+def logout(request):
+    auth_logout(request)
+    return redirect('home')
