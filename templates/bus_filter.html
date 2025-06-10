@@ -28,6 +28,7 @@
     <h2>Available Buses</h2>
     <ul>
       {% for bus in buses %}
+      <main>
       <li style="margin-bottom: 20px">
         <strong>Bus Number:</strong> {{ bus }}<br />
         <strong>Remaining Seats:</strong> {{ bus.available_seats }}<br />
@@ -51,6 +52,7 @@
         {% else %}
         <p><a href="{% url 'login' %}">Login to Register</a></p>
         {% endif %}
+        </main>
       </li>
       {% empty %}
       <li>No buses available for the selected route and stop.</li>

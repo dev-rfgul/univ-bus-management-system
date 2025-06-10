@@ -244,7 +244,7 @@ def contact(request):
     return render(request, 'contact.html', {'title': 'Contact Us'})
             
 @login_required
-def all_users(request):
+def driver_portal(request):
     user = request.user
     driver = None
     bus = None
@@ -263,7 +263,14 @@ def all_users(request):
                 if new_location in stops_list:
                     bus.current_location = new_location
                     bus.save()
-                    return redirect('all_users')  # Replace with your actual URL name
+
+                    # 🚍 If it's the last stop, remove all registered users
+                    if new_location == stops_list[-1]:
+                        bus.registered_users.clear()
+                        bus.available_seats = bus.capacity  # reset seat count
+                        bus.save()
+
+                    return redirect('driver_portal')  # Redirect after POST
         except Driver.DoesNotExist:
             is_driver = False  # Fallback in case profile is missing
 

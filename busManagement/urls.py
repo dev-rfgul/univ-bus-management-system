@@ -21,7 +21,7 @@ urlpatterns = [
     path('buses/register/<int:bus_id>/', views.register_bus, name='register_bus'),
     path('contact/', views.contact, name='contact'),
     path('contact_thanks',views.contact_thanks,name='contact_thanks'),
-    path('driver_portal/',views.all_users,name='driver_portal'),
+    path('driver_portal/',views.driver_portal,name='driver_portal'),
     path('my_registered_bus/',views.my_registered_buses,name='my_registered_buses'),
     #to handle the allauth urls,  
     path('accounts/',include("allauth.urls"))
