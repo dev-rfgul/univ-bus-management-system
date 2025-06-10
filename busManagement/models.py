@@ -34,6 +34,7 @@ class Bus(models.Model):
     available_seats = models.PositiveIntegerField()
     registered_users = models.ManyToManyField(CustomUser, related_name='buses', blank=True)
     departure_time = models.TimeField(default='00:00:00')
+    current_location = models.CharField(max_length=100, default='')
 
     def __str__(self):
         driver = getattr(self, 'driver', None)

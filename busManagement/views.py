@@ -244,16 +244,26 @@ def contact(request):
     return render(request, 'contact.html', {'title': 'Contact Us'})
             
 @login_required
+
 def all_users(request):
     user = request.user
     driver = None
     bus = None
+    stops_list = []
 
     if user.is_driver:
         try:
-            # get Driver instance from related_name
             driver = user.driver_profile
             bus = Bus.objects.filter(driver=driver).first()
+            if bus and bus.route and bus.route.stops:
+                stops_list = [stop.strip() for stop in bus.route.stops.split(',')]
+
+            if request.method == 'POST':
+                new_location = request.POST.get('current_location')
+                if new_location in stops_list:
+                    bus.current_location = new_location
+                    bus.save()
+                    return redirect('all_users')  # Replace with your actual URL name
         except Driver.DoesNotExist:
             pass
 
@@ -261,4 +271,5 @@ def all_users(request):
         'user': user,
         'driver': driver,
         'bus': bus,
+        'stops_list': stops_list,
     })
