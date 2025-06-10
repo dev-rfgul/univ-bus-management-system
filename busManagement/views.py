@@ -244,14 +244,14 @@ def contact(request):
     return render(request, 'contact.html', {'title': 'Contact Us'})
             
 @login_required
-
 def all_users(request):
     user = request.user
     driver = None
     bus = None
     stops_list = []
+    is_driver = getattr(user, 'is_driver', False)  # Safe check
 
-    if user.is_driver:
+    if is_driver:
         try:
             driver = user.driver_profile
             bus = Bus.objects.filter(driver=driver).first()
@@ -265,11 +265,17 @@ def all_users(request):
                     bus.save()
                     return redirect('all_users')  # Replace with your actual URL name
         except Driver.DoesNotExist:
-            pass
+            is_driver = False  # Fallback in case profile is missing
 
-    return render(request, 'all_users.html', {
+    return render(request, 'driver_portal.html', {
         'user': user,
         'driver': driver,
         'bus': bus,
         'stops_list': stops_list,
+        'is_driver': is_driver,
     })
+
+@login_required
+def my_registered_buses(request):
+    user_buses = request.user.buses.select_related('driver', 'route')
+    return render(request, 'my_registered_bus.html', {'buses': user_buses})

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>My Registered Buses</h2>
+<ul>
+  {% for bus in buses %}
+    <li>
+      <strong>Bus Number:</strong> {{ bus.bus_number }} <br>
+      <strong>Driver:</strong> {{ bus.driver.name }} <br>
+      <strong>Route:</strong> {{ bus.route.start_location }} to {{ bus.route.end_location }} <br>
+      <strong>Departure Time:</strong> {{ bus.departure_time }} <br>
+      <strong>Current Location:</strong> {{ bus.current_location }}
+    </li>
+  {% endfor %}
+</ul>
+
+</body>
+</html>

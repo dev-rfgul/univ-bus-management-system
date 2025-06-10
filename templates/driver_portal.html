@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>User List</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+      }
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: left;
+      }
+      th {
+        background-color: #f0f0f0;
+      }
+    </style>
+  </head>
+
+<body>
+  <main>
+
+ {%block content %}
+  {% if is_driver %}
+    {% if bus %}
+      <h3>Assigned Bus Details:</h3>
+      <ul>
+        <li><strong>Bus Number:</strong> {{ bus.bus_number }}</li>
+        <li><strong>Route:</strong> {{ bus.route.route_number }} - {{ bus.route.start_location }} to {{ bus.route.end_location }}</li>
+        <li><strong>Capacity:</strong> {{ bus.capacity }}</li>
+        <li><strong>Available Seats:</strong> {{ bus.available_seats }}</li>
+        <li><strong>Departure Time:</strong> {{ bus.departure_time }}</li>
+        <li><strong>Current Location:</strong> {{ bus.current_location }}</li>
+      </ul>
+
+      <form method="post">
+        {% csrf_token %}
+        <label for="current_location">Update Current Location:</label>
+        <select name="current_location" id="current_location">
+          {% for stop in stops_list %}
+            <option value="{{ stop }}" {% if stop == bus.current_location %}selected{% endif %}>{{ stop }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit">Update</button>
+      </form>
+    {% endif %}
+  {% else %}
+    <p style="color: red; font-size: xx-large; font-weight: bold;">You are not authorized to view this page. Only drivers can access this section.</p>
+  {% endif %}
+   </main>
+   {%endblock%}
+</body>
+
+</html>
