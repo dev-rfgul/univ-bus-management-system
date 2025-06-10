@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
-from .models import Bus,Driver,Route,Schedule,StudentBooking, ContactMessage
+from .models import Bus,Driver,Route,Schedule,StudentBooking, ContactMessage,CustomUser
 from .forms import UserSignInForm,UserSignupForm
 from django.contrib import messages
 from django.contrib.auth import login
@@ -243,4 +243,22 @@ def contact(request):
             
     return render(request, 'contact.html', {'title': 'Contact Us'})
             
+@login_required
+def all_users(request):
+    user = request.user
+    driver = None
+    bus = None
 
+    if user.is_driver:
+        try:
+            # get Driver instance from related_name
+            driver = user.driver_profile
+            bus = Bus.objects.filter(driver=driver).first()
+        except Driver.DoesNotExist:
+            pass
+
+    return render(request, 'all_users.html', {
+        'user': user,
+        'driver': driver,
+        'bus': bus,
+    })

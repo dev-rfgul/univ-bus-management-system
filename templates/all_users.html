@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>User List</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+      }
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: left;
+      }
+      th {
+        background-color: #f0f0f0;
+      }
+    </style>
+  </head>
+
+  <body>
+    
+    <h2>Welcome, {{ user.username }}!</h2>
+
+{% if driver %}
+  <p><strong>Driver Name:</strong> {{ driver.name }}</p>
+  <p><strong>License Number:</strong> {{ driver.license_number }}</p>
+
+  {% if bus %}
+    <h3>Assigned Bus Details:</h3>
+    <ul>
+      <li><strong>Bus Number:</strong> {{ bus.bus_number }}</li>
+      <li><strong>Route:</strong> {{ bus.route.route_number }} - {{ bus.route.start_location }} to {{ bus.route.end_location }}</li>
+      <li><strong>Capacity:</strong> {{ bus.capacity }}</li>
+      <li><strong>Available Seats:</strong> {{ bus.available_seats }}</li>
+      <li><strong>Departure Time:</strong> {{ bus.departure_time }}</li>
+    </ul>
+  {% else %}
+    <p>You are not assigned to any bus.</p>
+  {% endif %}
+{% else %}
+  <p>You are not registered as a driver.</p>
+{% endif %}
+
+  </body>
+</html>
