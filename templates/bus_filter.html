@@ -1,4 +1,4 @@
- {% extends "base.html" %}
+{% extends "base.html" %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -6,7 +6,61 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Available Buses</title>
+    <style>
+      form {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      label {
+        display: block;
+        margin-top: 15px;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+      }
+
+      input[type="text"]:focus {
+        border-color: #007bff;
+        outline: none;
+      }
+
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      h2 {
+        text-align: center;
+        color: #333;
+      }
+    </style>
   </head>
+
   <body>
     {% block content %}
     <main>
@@ -16,21 +70,35 @@
         <label for="start_location">Start Location:</label>
         <input
           type="text"
+          style="
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+          "
           name="start_location"
-          placeholder="e.g. main cafe"
+          placeholder="e.g. main canteen"
           list="stops"
           required
         />
-        
-        
+
         <label for="stop">Enter Your Stop:</label>
         <input
           type="text"
           name="stop"
-          placeholder="e.g. main cafe"
+          placeholder="e.g. 9bc"
           list="stops"
+          style="
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+          "
           required
         />
+
         <datalist id="stops">
           <option value="main canteen" />
           <option value="zero point" />
@@ -63,7 +131,22 @@
           <option value="adam wahn" />
           <option value="technical college" />
         </datalist>
-        <button type="submit">Find Buses</button>
+
+        <button
+          type="submit"
+          style="
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+          "
+        >
+          Find Buses
+        </button>
       </form>
 
       <h2>Available Buses</h2>
@@ -79,14 +162,13 @@
             {% with route=bus.route %}
             <strong>Matching Route:</strong><br />
             <strong>Route ID:</strong> {{ route.id }}<br />
-            Route: number: {{ route.route_number }} SP : ({{ route.start_location }} → FP: {{ route.end_location }})<br />
+            Route: number: {{ route.route_number }} SP : ({{
+            route.start_location }} → FP: {{ route.end_location }})<br />
             Stops:
             <ul>
               <li>{{ route.stops }}</li>
             </ul>
-            {% endwith %}
-
-            {% if user.is_authenticated %}
+            {% endwith %} {% if user.is_authenticated %}
             <form method="POST" action="{% url 'register_bus' bus.id %}">
               {% csrf_token %}
               <button type="submit">Register</button>
