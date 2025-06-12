@@ -165,7 +165,7 @@ def register_bus(request, bus_id):
     bus.registered_users.add(request.user)
     bus.available_seats -= 1
     bus.save()
-    return HttpResponse('Successfully registered for the bus')  # or show a success page
+    return redirect('my_registered_buses')
 
 def route_view(request):
 
