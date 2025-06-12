@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
-from .models import Bus,Driver,Route,Schedule,StudentBooking, ContactMessage,CustomUser
+from .models import Bus,Driver,Route,Schedule,StudentBooking, ContactMessage
 from .forms import UserSignInForm,UserSignupForm
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -167,27 +167,7 @@ def register_bus(request, bus_id):
     bus.save()
     return redirect('my_registered_buses')
 
-def route_view(request):
 
-    if request.method == 'POST':
-        start_location = request.POST.get('start_location', '').strip().lower()
-        stop = request.POST.get('stop', '').strip().lower()
-
-        if not start_location or not stop:
-            return JsonResponse({'error': 'Start and end stops are required'}, status=400)
-
-        result = find_route(start_location, stop)
-
-        if not result:
-            return JsonResponse({'message': 'No route found'}, status=404)
-
-        return JsonResponse(result)
-
-    # GET request — render the page with default route data
-    routes = Route.objects.all()
-    return render(request, 'bus_filter.html', {
-        'routes': routes
-    })
 
 def signup(request):
     if request.method == 'POST':
