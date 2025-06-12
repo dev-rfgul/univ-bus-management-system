@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+ {% extends "base.html" %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,60 +8,97 @@
     <title>Available Buses</title>
   </head>
   <body>
-    {%block content%}
+    {% block content %}
     <main>
-    <h2>Filter Buses</h2>
-    <form method="POST">
-      {% csrf_token %}
-      <label for="start_location">Start Location:</label>
-      <input
-        type="text"
-        name="start_location"
-        placeholder="e.g. main cafe"
-        required
-      />
-      <label for="stop">Enter Your Stop:</label>
-      <input type="text" name="stop" placeholder="e.g. main cafe" required />
-      <button type="submit">Find Buses</button>
-    </form>
-
-    <h2>Available Buses</h2>
-    <ul>
-      {% for bus in buses %}
-      <main>
-      <li style="margin-bottom: 20px">
-        <strong>Bus Number:</strong> {{ bus }}<br />
-        <strong>Remaining Seats:</strong> {{ bus.available_seats }}<br />
-        <strong>Departure Time:</strong> {{ bus.departure_time }}<br />
-        <strong>Current Location:</strong> {{ bus.current_location }}jdlfaljdfljk<br />
-
-        {% with route=bus.route %}
-        <strong>Matching Route:</strong><br />
-        <strong>Route ID:</strong> {{ route.id }}<br />
-        Route: number: {{ route.route_number }}  SP : ({{ route.start_location }} → FP: {{ route.end_location }})<br />
-        Stops:
-        <ul>
-          <li>{{ route.stops }}</li>
-        </ul>
-        {% endwith %} 
+      <h2>Filter Buses</h2>
+      <form method="POST">
+        {% csrf_token %}
+        <label for="start_location">Start Location:</label>
+        <input
+          type="text"
+          name="start_location"
+          placeholder="e.g. main cafe"
+          required
+        />
         
-        {% if user.is_authenticated %}
-        <form method="POST" action="{% url 'register_bus' bus.id %}">
-          {% csrf_token %}
-          <button type="submit">Register</button>
-        </form>
-        {% else %}
-        <p><a href="{% url 'login' %}">Login to Register</a></p>
-        {% endif %}
-        </main>
-      </li>
-      {% empty %}
-      <li>No buses available for the selected route and stop.</li>
-      {% endfor %}
-    </ul>
+        <label for="stop">Enter Your Stop:</label>
+        <input
+          type="text"
+          name="stop"
+          placeholder="e.g. main cafe"
+          list="stops"
+          required
+        />
+        <datalist id="stops">
+          <option value="main canteen" />
+          <option value="zero point" />
+          <option value="japan town" />
+          <option value="10bc" />
+          <option value="9bc" />
+          <option value="mela gali" />
+          <option value="hussani chowk" />
+          <option value="commercial area" />
+          <option value="one unit" />
+          <option value="saddar pulley" />
+          <option value="abassia campus" />
+          <option value="lorry adda" />
+          <option value="city hotel" />
+          <option value="model town a" />
+          <option value="model town b" />
+          <option value="model town c" />
+          <option value="kfc" />
+          <option value="victoria hospital" />
+          <option value="saraiki chowk" />
+          <option value="100ft" />
+          <option value="cmh" />
+          <option value="cantt" />
+          <option value="punjab college" />
+          <option value="islami colony" />
+          <option value="post office" />
+          <option value="super chowk" />
+          <option value="dhq" />
+          <option value="shahida islam" />
+          <option value="adam wahn" />
+          <option value="technical college" />
+        </datalist>
+        <button type="submit">Find Buses</button>
+      </form>
 
-  </main>
-    {%endblock content%}
+      <h2>Available Buses</h2>
+      <ul>
+        {% for bus in buses %}
+        <main>
+          <li style="margin-bottom: 20px">
+            <strong>Bus Number:</strong> {{ bus }}<br />
+            <strong>Remaining Seats:</strong> {{ bus.available_seats }}<br />
+            <strong>Departure Time:</strong> {{ bus.departure_time }}<br />
+            <strong>Current Location:</strong> {{ bus.current_location }}<br />
+
+            {% with route=bus.route %}
+            <strong>Matching Route:</strong><br />
+            <strong>Route ID:</strong> {{ route.id }}<br />
+            Route: number: {{ route.route_number }} SP : ({{ route.start_location }} → FP: {{ route.end_location }})<br />
+            Stops:
+            <ul>
+              <li>{{ route.stops }}</li>
+            </ul>
+            {% endwith %}
+
+            {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'register_bus' bus.id %}">
+              {% csrf_token %}
+              <button type="submit">Register</button>
+            </form>
+            {% else %}
+            <p><a href="{% url 'login' %}">Login to Register</a></p>
+            {% endif %}
+          </li>
+        </main>
+        {% empty %}
+        <li>No buses available for the selected route and stop.</li>
+        {% endfor %}
+      </ul>
+    </main>
+    {% endblock content %}
   </body>
 </html>
-
