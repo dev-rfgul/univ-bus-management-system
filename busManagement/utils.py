@@ -1,5 +1,6 @@
 
-
+from django.http import JsonResponse
+from django.shortcuts import render
 from collections import defaultdict
 from heapq import heappush, heappop
 from .models import Route
@@ -22,47 +23,58 @@ def build_graph():
 def heuristic(a, b):
     return 0  # Neutral heuristic for now (acts like Dijkstra)
 
-def find_route(start, end):
-    graph = build_graph()
-    start = start.lower()
-    end = end.lower()
+def find_indirect_route(start, end):
+    start = start.strip().lower()
+    end = end.strip().lower()
 
-    queue = []
-    visited = set()
+    routes = Route.objects.all()
+    stop_to_routes = defaultdict(list)
+    route_to_stops = {}
 
-    # (f_score, current_stop, path, routes_so_far, current_route)
-    heappush(queue, (0, start, [], [], None))
+    for route in routes:
+        stop_list = [stop.strip().lower() for stop in route.stops.split(',')]
+        route_to_stops[route.route_number] = stop_list
+        for stop in stop_list:
+            stop_to_routes[stop].append(route.route_number)
 
-    while queue:
-        cost, current, path, routes, current_route = heappop(queue)
+    # ✅ First, check if direct route exists
+    direct_routes = [
+        route_num for route_num, stops in route_to_stops.items()
+        if start in stops and end in stops and stops.index(start) < stops.index(end)
+    ]
 
-        if current == end:
-            return {
-                'path': path + [current],
-                'routes': routes
-            }
+    if direct_routes:
+        direct_route = direct_routes[0]
+        stops = route_to_stops[direct_route]
+        path = stops[stops.index(start):stops.index(end)+1]
+        return {
+            'path': path,
+            'routes': [direct_route]
+        }
 
-        state = (current, current_route)
-        if state in visited:
-            continue
-        visited.add(state)
+    # ✅ Check for 1-transfer indirect routes
+    for route1 in stop_to_routes[start]:
+        for route2 in stop_to_routes[end]:
+            if route1 == route2:
+                continue
 
-        for neighbor, route in graph.get(current, []):
-            neighbor = neighbor.lower()
-            new_path = path + [current]
-            new_routes = list(routes)
+            # Look for a common stop (transfer point) between route1 and route2
+            stops1 = route_to_stops[route1]
+            stops2 = route_to_stops[route2]
+            transfer_stops = set(stops1) & set(stops2)
 
-            # ✅ Fix route switching logic:
-            if current_route is None:
-                new_routes.append(route)
-            elif route != current_route and (not routes or route != routes[-1]):
-                new_routes.append(route)
+            for transfer in transfer_stops:
+                if (stops1.index(start) < stops1.index(transfer) and
+                    stops2.index(transfer) < stops2.index(end)):
+                    path1 = stops1[stops1.index(start):stops1.index(transfer)+1]
+                    path2 = stops2[stops2.index(transfer)+1:stops2.index(end)+1]
+                    return {
+                        'path': path1 + path2,
+                        'routes': [route1, route2],
+                        'transfer_point': transfer
+                    }
 
-            total_cost = cost + 1 + heuristic(neighbor, end)
-            heappush(queue, (total_cost, neighbor, new_path, new_routes, route))
-
-    return None
-
+    return None  # No indirect route found
 
 def route_view(request):
 
@@ -73,7 +85,7 @@ def route_view(request):
         if not start_location or not stop:
             return JsonResponse({'error': 'Start and end stops are required'}, status=400)
 
-        result = find_route(start_location, stop)
+        result = find_indirect_route(start_location, stop)
 
         if not result:
             return JsonResponse({'message': 'No route found'}, status=404)

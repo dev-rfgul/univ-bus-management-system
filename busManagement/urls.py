@@ -1,6 +1,7 @@
 from django.urls import path,include
 
 from .import views
+from .utils import route_view
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -24,6 +25,7 @@ urlpatterns = [
     path('contact_thanks',views.contact_thanks,name='contact_thanks'),
     path('driver_portal/',views.driver_portal,name='driver_portal'),
     path('my_registered_bus/',views.my_registered_buses,name='my_registered_buses'),
+    path('indirect_route/',route_view,name='indirect_route'),
     #to handle the allauth urls,  
     path('accounts/',include("allauth.urls"))
 ]
