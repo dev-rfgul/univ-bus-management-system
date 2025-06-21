@@ -496,6 +496,7 @@ def available_buses_for_direct_route(request):
                         matching_routes.append(route)
 
             buses = Bus.objects.filter(route__in=matching_routes)
+            print(f"Found {len(buses)} buses for routes: {[bus.bus_number for bus in buses]}")
         else:
             return JsonResponse({'error': 'Both start and end locations are required'}, status=400)
 
@@ -517,7 +518,7 @@ def route_view(request):
         
         if not result:
             return JsonResponse({'error': 'No route found'}, status=404)
-
+        print(f"Found route: {result['path']} with buses: {[bus['bus_number'] for bus in result.get('buses', [])]}" )
         return render(request, 'route_view.html', {'result': result})
     
     # If GET request, just render empty form

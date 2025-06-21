@@ -1,197 +1,103 @@
 {% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Available Buses</title>
-    <style>
-      form {
-        max-width: 600px;
-        margin: 20px auto;
-        background-color: #f9f9f9;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
+{% block content %}
+<main class="max-w-4xl mx-auto p-6">
+  <h2 class="text-3xl font-bold text-blue-700 mb-6">🚌 Find Your Route</h2>
 
-      label {
-        display: block;
-        margin-top: 15px;
-        margin-bottom: 5px;
-        font-weight: bold;
-        color: #333;
-      }
-
-      input[type="text"] {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        font-size: 16px;
-        transition: border-color 0.3s ease;
-      }
-
-      input[type="text"]:focus {
-        border-color: #007bff;
-        outline: none;
-      }
-
-      button {
-        margin-top: 20px;
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-
-      button:hover {
-        background-color: #0056b3;
-      }
-
-      h2 {
-        text-align: center;
-        color: #333;
-      }
-    </style>
-  </head>
-
-  <body>
-    {% block content %}
-    <main>
-      <h2>Filter Buses</h2>
-      <form method="POST">
-        {% csrf_token %}
-        <label for="start_location">Start Location:</label>
-        <input
-          type="text"
-          style="
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-          "
-          name="start_location"
-          placeholder="e.g. main canteen"
-          list="stops"
-          required
-        />
-
-        <label for="stop">Enter Your Stop:</label>
-        <input
-          type="text"
-          name="stop"
-          placeholder="e.g. 9bc"
-          list="stops"
-          style="
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-          "
-          required
-        />
-
-        <datalist id="stops">
-          <option value="main canteen" />
-          <option value="zero point" />
-          <option value="japan town" />
-          <option value="10bc" />
-          <option value="9bc" />
-          <option value="mela gali" />
-          <option value="hussani chowk" />
-          <option value="commercial area" />
-          <option value="one unit" />
-          <option value="saddar pulley" />
-          <option value="abassia campus" />
-          <option value="lorry adda" />
-          <option value="city hotel" />
-          <option value="model town a" />
-          <option value="model town b" />
-          <option value="model town c" />
-          <option value="kfc" />
-          <option value="victoria hospital" />
-          <option value="saraiki chowk" />
-          <option value="100ft" />
-          <option value="cmh" />
-          <option value="cantt" />
-          <option value="punjab college" />
-          <option value="islami colony" />
-          <option value="post office" />
-          <option value="super chowk" />
-          <option value="dhq" />
-          <option value="shahida islam" />
-          <option value="adam wahn" />
-          <option value="technical college" />
-        </datalist>
-
-        <button
-          type="submit"
-          style="
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-          "
-        >
-          Find Buses
-        </button>
-      </form>
-
-      <h2>Available Buses</h2>
-      {% if result %}
-      <div class="p-4 bg-gray-100 rounded shadow-md">
-        <h2 class="text-xl font-semibold text-blue-600 mb-2">
-          {{ result.message }}
-        </h2>
-
-        {% for segment in result.segments %}
-        <div class="mb-6 p-4 bg-white rounded shadow">
-          <h3 class="text-lg font-semibold text-gray-800">
-            🚌 {{ segment.route }}: {{ segment.from|title }} → {{
-            segment.to|title }}
-          </h3>
-
-          <p class="text-sm text-gray-600 mb-2">Stops:</p>
-          <ul class="list-disc list-inside text-gray-700">
-            {% for stop in segment.stops %}
-            <li>{{ stop|title }}</li>
-            {% endfor %}
-          </ul>
-
-          <div class="mt-3">
-            <p class="text-sm text-gray-600">Available Buses:</p>
-            {% for bus in segment.buses %}
-            <div class="p-2 border rounded mb-2 bg-gray-50">
-              <p><strong>ID:</strong> {{ bus.bus_id }}</p>
-              <p><strong>Number:</strong> {{ bus.bus_number }}</p>
-              <p><strong>Status:</strong> {{ bus.status }}</p>
-              <p>
-                <strong>Current Location:</strong> {{ bus.current_location|title
-                }}
-              </p>
-              <p><strong>Capacity:</strong> {{ bus.capacity }}</p>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-        {% endfor %}
+  <!-- Filter Form -->
+  <form method="POST" class="bg-white shadow-lg rounded-lg p-6 mb-10 border border-blue-100">
+    {% csrf_token %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label for="start_location" class="block text-sm font-semibold text-gray-700 mb-2">Start Location</label>
+        <input type="text" name="start_location" placeholder="e.g. main canteen" list="stops" required
+          class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
-      {% else %}
-      <p class="text-gray-500">No route selected or found yet.</p>
-      {% endif %}
-    </main>
-    {% endblock content %}
-  </body>
-</html>
+      <div>
+        <label for="stop" class="block text-sm font-semibold text-gray-700 mb-2">Destination Stop</label>
+        <input type="text" name="stop" placeholder="e.g. 9bc" list="stops" required
+          class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+      </div>
+    </div>
+
+    <datalist id="stops">
+      <option value="main canteen" />
+      <option value="zero point" />
+      <option value="technical college" />
+      <option value="hussani chowk" />
+      <option value="mela gali" />
+      <option value="9bc" />
+      <option value="10bc" />
+      <option value="japan town" />
+    </datalist>
+
+    <div class="mt-6 text-center">
+      <button type="submit"
+        class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition shadow">🔍 Search Buses</button>
+    </div>
+  </form>
+
+  <!-- Results -->
+  {% if result %}
+  <section class="space-y-8">
+
+    <!-- Route Overview Card -->
+    <div class="bg-white rounded-lg shadow border-l-4 border-blue-500 p-6">
+      <h3 class="text-xl font-semibold text-blue-600 mb-2">📍 Route Overview</h3>
+      <p><strong>Type:</strong> {{ result.type|title }}</p>
+      <p><strong>Start:</strong> {{ result.start_location|title }}</p>
+      <p><strong>Destination:</strong> {{ result.path|last|title }}</p>
+      <p><strong>Total Stops:</strong> {{ result.total_stops }}</p>
+      <p><strong>Full Route:</strong> {{ result.path|join:" → "|title }}</p>
+      <p><strong>Routes Involved:</strong> {{ result.routes|join:", " }}</p>
+    </div>
+
+    <!-- Transfer Point Card -->
+    {% if result.transfer_point %}
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded shadow">
+      <h4 class="text-lg font-semibold text-yellow-700 mb-2">🔁 Transfer Required</h4>
+      <p><strong>Transfer at:</strong> {{ result.transfer_point|title }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Segment-wise Details -->
+    {% for segment in result.segments %}
+    <div class="bg-white border rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-blue-700 mb-4">
+        🛣️ {{ segment.route }}: {{ segment.from|title }} → {{ segment.to|title }}
+      </h3>
+
+      <!-- Stops Card -->
+      <div class="mb-4">
+        <h4 class="font-semibold text-gray-700 mb-2">🗺️ Stops in This Segment:</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-gray-800">
+          {% for stop in segment.stops %}
+          <div class="bg-gray-100 rounded px-3 py-2 shadow-inner">{{ stop|title }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Bus Cards -->
+      <div>
+        <h4 class="font-semibold text-gray-700 mb-2">🚍 Buses Available:</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {% for bus in segment.buses %}
+          <div class="bg-blue-50 border border-blue-200 rounded p-4 shadow-sm">
+            <p><strong>ID:</strong> {{ bus.bus_id }}</p>
+            <p><strong>Number:</strong> {{ bus.bus_number }}</p>
+            <p><strong>Status:</strong> {{ bus.status }}</p>
+            <p><strong>Current Location:</strong> {{ bus.current_location|title }}</p>
+            <p><strong>Capacity:</strong> {{ bus.capacity }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+  </section>
+  {% else %}
+  <p class="text-center text-gray-500 mt-8">No routes found. Try entering a valid start and stop.</p>
+  {% endif %}
+</main>
+{% endblock %}

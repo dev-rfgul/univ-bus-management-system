@@ -518,7 +518,7 @@ def route_view(request):
         
         if not result:
             return JsonResponse({'error': 'No route found'}, status=404)
-
+        print(result)
         return render(request, 'route_view.html', {'result': result})
     
     # If GET request, just render empty form
