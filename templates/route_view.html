@@ -198,7 +198,8 @@
                     <span class="detail-icon">👥</span>
                     <span class="detail-text">Capacity: {{ bus.capacity }}</span>
                   </div>
-                  <button>Register for bus</button>
+                 <a href="{% url 'register_bus' bus_id=bus.bus_id %}" class="register-link">Register For Bus</a>
+
                 </div>
               </div>
               {% endfor %}
@@ -220,6 +221,22 @@
 </main>
 
 <style>
+  .register-link {
+  display: inline-block;
+  text-align: center;
+  padding: 8px 16px;
+  background-color: #007BFF; /* Bootstrap-like blue */
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.register-link:hover {
+  background-color: #0056b3;
+}
+
 /* Route Finder Specific Styles */
 .route-finder-container {
   max-width: 1200px;
