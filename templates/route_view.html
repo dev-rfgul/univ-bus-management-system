@@ -197,6 +197,7 @@
                   <div class="bus-detail">
                     <span class="detail-icon">👥</span>
                     <span class="detail-text">Capacity: {{ bus.capacity }}</span>
+                    <span class="detail-text">Departure Time: {{ bus.departure_time }}</span>
                   </div>
                  <a href="{% url 'register_bus' bus_id=bus.bus_id %}" class="register-link">Register For Bus</a>
 

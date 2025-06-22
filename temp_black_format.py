@@ -240,7 +240,9 @@ def get_buses_for_route(route_number):
                 'bus_id': bus.id,
                 'bus_number': bus.bus_number,
                 'status': getattr(bus, 'status', 'active'),
-                'route_number': route_number
+                'route_number': route_number,
+                'route_name': route.route_name, 
+                'departure_time': bus.departure_time.strftime('%H:%M') if bus.departure_time else None,
             }
             
             # Add additional fields if they exist in your Bus model
@@ -518,7 +520,7 @@ def route_view(request):
         
         if not result:
             return JsonResponse({'error': 'No route found'}, status=404)
-        print(f"Found route: {result['path']} with buses: {[bus['bus_number'] for bus in result.get('buses', [])]}" )
+        print(result)
         return render(request, 'route_view.html', {'result': result})
     
     # If GET request, just render empty form

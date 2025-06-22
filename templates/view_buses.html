@@ -20,6 +20,7 @@
             <th>Capacity</th>
             <th>available_seat</th>
             <th>Current location</th>
+            <th>Departure</th>
         </tr>
         {% for bus in buses %}
         <tr>
@@ -31,6 +32,7 @@
             <td>{{ bus.capacity }}</td>
             <td>{{ bus.available_seats }}</td>
             <td>{{ bus.current_location }}</td>
+            <td>{{ bus.departure_time }}</td>
         </tr>
         {% endfor %}
     </table>

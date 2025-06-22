@@ -240,7 +240,9 @@ def get_buses_for_route(route_number):
                 'bus_id': bus.id,
                 'bus_number': bus.bus_number,
                 'status': getattr(bus, 'status', 'active'),
-                'route_number': route_number
+                'route_number': route_number,
+                # 'route_name': route.route_name, 
+                'departure_time': bus.departure_time.strftime('%H:%M') if bus.departure_time else None,
             }
             
             # Add additional fields if they exist in your Bus model
