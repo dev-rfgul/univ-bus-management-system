@@ -1,103 +1,1027 @@
 {% extends "base.html" %}
 
 {% block content %}
-<main class="max-w-4xl mx-auto p-6">
-  <h2 class="text-3xl font-bold text-blue-700 mb-6">🚌 Find Your Route</h2>
-
-  <!-- Filter Form -->
-  <form method="POST" class="bg-white shadow-lg rounded-lg p-6 mb-10 border border-blue-100">
-    {% csrf_token %}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label for="start_location" class="block text-sm font-semibold text-gray-700 mb-2">Start Location</label>
-        <input type="text" name="start_location" placeholder="e.g. main canteen" list="stops" required
-          class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-      </div>
-      <div>
-        <label for="stop" class="block text-sm font-semibold text-gray-700 mb-2">Destination Stop</label>
-        <input type="text" name="stop" placeholder="e.g. 9bc" list="stops" required
-          class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-      </div>
+<main class="route-finder-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        <span class="icon">🚌</span>
+        Find Your Perfect Route
+      </h1>
+      <p class="hero-subtitle">Discover the best bus routes across campus with real-time information</p>
     </div>
+  </div>
 
-    <datalist id="stops">
-      <option value="main canteen" />
-      <option value="zero point" />
-      <option value="technical college" />
-      <option value="hussani chowk" />
-      <option value="mela gali" />
-      <option value="9bc" />
-      <option value="10bc" />
-      <option value="japan town" />
-    </datalist>
+  <!-- Search Form -->
+  <div class="search-container">
+    <form method="POST" class="search-form" id="routeForm">
+      {% csrf_token %}
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="start_location" class="input-label">
+            <span class="label-icon">📍</span>
+            Departure Point
+          </label>
+          <div class="input-wrapper">
+            <input 
+              type="text" 
+              name="start_location" 
+              id="start_location"
+              placeholder="Enter starting location..." 
+              list="stops" 
+              required
+              class="form-input"
+            >
+            <div class="input-focus-ring"></div>
+          </div>
+        </div>
+        
+        <div class="input-group">
+          <label for="stop" class="input-label">
+            <span class="label-icon">🎯</span>
+            Destination
+          </label>
+          <div class="input-wrapper">
+            <input 
+              type="text" 
+              name="stop" 
+              id="stop"
+              placeholder="Enter destination..." 
+              list="stops" 
+              required
+              class="form-input"
+            >
+            <div class="input-focus-ring"></div>
+          </div>
+        </div>
+      </div>
 
-    <div class="mt-6 text-center">
-      <button type="submit"
-        class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition shadow">🔍 Search Buses</button>
-    </div>
-  </form>
+      <datalist id="stops">
+        <option value="main canteen" />
+        <option value="zero point" />
+        <option value="technical college" />
+        <option value="hussani chowk" />
+        <option value="mela gali" />
+        <option value="9bc" />
+        <option value="10bc" />
+        <option value="japan town" />
+      </datalist>
 
-  <!-- Results -->
+      <div class="search-button-container">
+        <button type="submit" class="search-btn">
+          <span class="btn-text">
+            <span class="btn-icon">🔍</span>
+            Find My Route
+          </span>
+          <div class="btn-ripple"></div>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Section -->
   {% if result %}
-  <section class="space-y-8">
-
-    <!-- Route Overview Card -->
-    <div class="bg-white rounded-lg shadow border-l-4 border-blue-500 p-6">
-      <h3 class="text-xl font-semibold text-blue-600 mb-2">📍 Route Overview</h3>
-      <p><strong>Type:</strong> {{ result.type|title }}</p>
-      <p><strong>Start:</strong> {{ result.start_location|title }}</p>
-      <p><strong>Destination:</strong> {{ result.path|last|title }}</p>
-      <p><strong>Total Stops:</strong> {{ result.total_stops }}</p>
-      <p><strong>Full Route:</strong> {{ result.path|join:" → "|title }}</p>
-      <p><strong>Routes Involved:</strong> {{ result.routes|join:", " }}</p>
+  <div class="results-container">
+    
+    <!-- Route Summary Card -->
+    <div class="route-summary-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="title-icon">🗺️</span>
+          Route Overview
+        </h2>
+        <div class="route-type-badge {{ result.type }}">{{ result.type|title }}</div>
+      </div>
+      
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-icon">🚏</div>
+          <div class="summary-content">
+            <span class="summary-label">Total Stops</span>
+            <span class="summary-value">{{ result.total_stops }}</span>
+          </div>
+        </div>
+        
+        <div class="summary-item">
+          <div class="summary-icon">🛣️</div>
+          <div class="summary-content">
+            <span class="summary-label">Routes</span>
+            <span class="summary-value">{{ result.routes|join:", " }}</span>
+          </div>
+        </div>
+        
+        <div class="summary-item full-width">
+          <div class="route-path">
+            <div class="path-header">Complete Journey</div>
+            <div class="path-visualization">
+              {% for stop in result.path %}
+                <div class="path-stop">
+                  <div class="stop-dot {% if forloop.first %}start{% elif forloop.last %}end{% endif %}"></div>
+                  <span class="stop-name">{{ stop|title }}</span>
+                </div>
+                {% if not forloop.last %}
+                  <div class="path-connector"></div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Transfer Point Card -->
+    <!-- Transfer Alert -->
     {% if result.transfer_point %}
-    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded shadow">
-      <h4 class="text-lg font-semibold text-yellow-700 mb-2">🔁 Transfer Required</h4>
-      <p><strong>Transfer at:</strong> {{ result.transfer_point|title }}</p>
+    <div class="transfer-alert">
+      <div class="alert-icon">🔄</div>
+      <div class="alert-content">
+        <h3 class="alert-title">Transfer Required</h3>
+        <p class="alert-message">You'll need to change buses at <strong>{{ result.transfer_point|title }}</strong></p>
+      </div>
     </div>
     {% endif %}
 
-    <!-- Segment-wise Details -->
-    {% for segment in result.segments %}
-    <div class="bg-white border rounded-lg shadow p-6">
-      <h3 class="text-lg font-semibold text-blue-700 mb-4">
-        🛣️ {{ segment.route }}: {{ segment.from|title }} → {{ segment.to|title }}
-      </h3>
-
-      <!-- Stops Card -->
-      <div class="mb-4">
-        <h4 class="font-semibold text-gray-700 mb-2">🗺️ Stops in This Segment:</h4>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-gray-800">
-          {% for stop in segment.stops %}
-          <div class="bg-gray-100 rounded px-3 py-2 shadow-inner">{{ stop|title }}</div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <!-- Bus Cards -->
-      <div>
-        <h4 class="font-semibold text-gray-700 mb-2">🚍 Buses Available:</h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {% for bus in segment.buses %}
-          <div class="bg-blue-50 border border-blue-200 rounded p-4 shadow-sm">
-            <p><strong>ID:</strong> {{ bus.bus_id }}</p>
-            <p><strong>Number:</strong> {{ bus.bus_number }}</p>
-            <p><strong>Status:</strong> {{ bus.status }}</p>
-            <p><strong>Current Location:</strong> {{ bus.current_location|title }}</p>
-            <p><strong>Capacity:</strong> {{ bus.capacity }}</p>
+    <!-- Route Segments -->
+    <div class="segments-container">
+      <h2 class="segments-title">Journey Details</h2>
+      
+      {% for segment in result.segments %}
+      <div class="segment-card">
+        <div class="segment-header">
+          <div class="segment-title">
+            <span class="segment-icon">🚌</span>
+            <span class="route-name">{{ segment.route }}</span>
+            <span class="route-direction">{{ segment.from|title }} → {{ segment.to|title }}</span>
           </div>
-          {% endfor %}
+          <div class="segment-number">Step {{ forloop.counter }}</div>
+        </div>
+
+        <div class="segment-content">
+          <!-- Stops Section -->
+          <div class="stops-section">
+            <h4 class="section-title">
+              <span class="section-icon">🗺️</span>
+              Stops on This Route
+            </h4>
+            <div class="stops-grid">
+              {% for stop in segment.stops %}
+              <div class="stop-chip">
+                <span class="stop-text">{{ stop|title }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Buses Section -->
+          <div class="buses-section">
+            <h4 class="section-title">
+              <span class="section-icon">🚍</span>
+              Available Buses
+            </h4>
+            <div class="buses-grid">
+              {% for bus in segment.buses %}
+              <div class="bus-card {% if bus.status == 'active' %}active{% else %}inactive{% endif %}">
+                <div class="bus-header">
+                  <div class="bus-number">{{ bus.bus_number }}</div>
+                  <div class="bus-status-badge {{ bus.status }}">{{ bus.status|title }}</div>
+                </div>
+                <div class="bus-details">
+                  <div class="bus-detail">
+                    <span class="detail-icon">🆔</span>
+                    <span class="detail-text">ID: {{ bus.bus_id }}</span>
+                  </div>
+                  <div class="bus-detail">
+                    <span class="detail-icon">📍</span>
+                    <span class="detail-text">{{ bus.current_location|title }}</span>
+                  </div>
+                  <div class="bus-detail">
+                    <span class="detail-icon">👥</span>
+                    <span class="detail-text">Capacity: {{ bus.capacity }}</span>
+                  </div>
+                  <button>Register for bus</button>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
         </div>
       </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-
-  </section>
+  </div>
+  
   {% else %}
-  <p class="text-center text-gray-500 mt-8">No routes found. Try entering a valid start and stop.</p>
+  <div class="no-results">
+    <div class="no-results-icon">🚫</div>
+    <h3 class="no-results-title">No Routes Found</h3>
+    <p class="no-results-message">Try entering different start and destination points</p>
+  </div>
   {% endif %}
 </main>
+
+<style>
+/* Route Finder Specific Styles */
+.route-finder-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: calc(100vh - 200px);
+}
+
+/* Hero Section */
+.hero-section {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-content {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 15px;
+  text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.hero-title .icon {
+  font-size: 3.5rem;
+  animation: bounce 2s infinite;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: #e0e0e0;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Search Container */
+.search-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 40px;
+  margin-bottom: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.search-form {
+  position: relative;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.input-group {
+  position: relative;
+}
+
+.input-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.label-icon {
+  font-size: 1.2rem;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 18px 20px;
+  border: 2px solid #e1e8ed;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  background: #ffffff;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3498db;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(52, 152, 219, 0.2);
+}
+
+.input-focus-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 16px;
+  background: linear-gradient(45deg, #3498db, #2980b9);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.form-input:focus + .input-focus-ring {
+  opacity: 0.1;
+}
+
+.search-button-container {
+  text-align: center;
+}
+
+.search-btn {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  padding: 18px 40px;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(52, 152, 219, 0.3);
+}
+
+.search-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(52, 152, 219, 0.4);
+}
+
+.search-btn:active {
+  transform: translateY(-1px);
+}
+
+.btn-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.btn-icon {
+  font-size: 1.3rem;
+}
+
+.btn-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.search-btn:active .btn-ripple {
+  width: 300px;
+  height: 300px;
+}
+
+/* Results Container */
+.results-container {
+  margin-top: 40px;
+}
+
+/* Route Summary Card */
+.route-summary-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.card-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.title-icon {
+  font-size: 2rem;
+}
+
+.route-type-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.route-type-badge.direct {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+}
+
+.route-type-badge.transfer {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 16px;
+  transition: transform 0.2s ease;
+}
+
+.summary-item:hover {
+  transform: translateY(-2px);
+}
+
+.summary-item.full-width {
+  grid-column: span 2;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.summary-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.summary-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-label {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+/* Route Path Visualization */
+.route-path {
+  margin-top: 10px;
+}
+
+.path-header {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.path-visualization {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+}
+
+.path-stop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stop-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #95a5a6;
+}
+
+.stop-dot.start {
+  background: #27ae60;
+  box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+}
+
+.stop-dot.end {
+  background: #e74c3c;
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+}
+
+.stop-name {
+  font-weight: 500;
+  color: #34495e;
+  font-size: 0.95rem;
+}
+
+.path-connector {
+  height: 2px;
+  background: linear-gradient(90deg, #bdc3c7, #95a5a6);
+  flex: 1;
+  min-width: 20px;
+}
+
+/* Transfer Alert */
+.transfer-alert {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 10px 25px rgba(243, 156, 18, 0.3);
+}
+
+.alert-icon {
+  font-size: 2.5rem;
+  animation: rotate 2s linear infinite;
+}
+
+.alert-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.alert-message {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* Segments Container */
+.segments-container {
+  margin-top: 40px;
+}
+
+.segments-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 30px;
+  text-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.segment-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  margin-bottom: 25px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.segment-header {
+  background: linear-gradient(135deg, #34495e, #2c3e50);
+  color: white;
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.segment-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.segment-icon {
+  font-size: 1.5rem;
+}
+
+.route-name {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.route-direction {
+  opacity: 0.9;
+}
+
+.segment-number {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.segment-content {
+  padding: 30px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.section-icon {
+  font-size: 1.3rem;
+}
+
+/* Stops Section */
+.stops-section {
+  margin-bottom: 30px;
+}
+
+.stops-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.stop-chip {
+  background: linear-gradient(135deg, #ecf0f1, #d5dbdb);
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 2px solid #bdc3c7;
+  transition: all 0.2s ease;
+}
+
+.stop-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stop-text {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+/* Buses Section */
+.buses-section {
+  margin-top: 30px;
+}
+
+.buses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.bus-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.bus-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #95a5a6, #7f8c8d);
+  transition: all 0.3s ease;
+}
+
+.bus-card.active::before {
+  background: linear-gradient(90deg, #27ae60, #2ecc71);
+}
+
+.bus-card.inactive::before {
+  background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+.bus-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.bus-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.bus-number {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.bus-status-badge {
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bus-status-badge.active {
+  background: #d5f4e6;
+  color: #27ae60;
+}
+
+.bus-status-badge.inactive {
+  background: #fadbd8;
+  color: #e74c3c;
+}
+
+.bus-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bus-detail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detail-icon {
+  font-size: 1.1rem;
+  width: 20px;
+}
+
+.detail-text {
+  color: #5d6d7e;
+  font-weight: 500;
+}
+
+/* No Results */
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  margin-top: 40px;
+}
+
+.no-results-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+.no-results-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.no-results-message {
+  font-size: 1.1rem;
+  color: #e0e0e0;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Animations */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.route-summary-card,
+.segment-card,
+.transfer-alert {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .summary-item.full-width {
+    grid-column: span 1;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .segment-header {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .route-finder-container {
+    padding: 15px;
+  }
+  
+  .hero-title {
+    font-size: 2.2rem;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .hero-title .icon {
+    font-size: 2.5rem;
+  }
+  
+  .search-container {
+    padding: 25px 20px;
+  }
+  
+  .path-visualization {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .path-connector {
+    height: 20px;
+    width: 2px;
+    min-width: 2px;
+  }
+  
+  .buses-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.8rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  .search-btn {
+    width: 100%;
+    padding: 16px 30px;
+  }
+  
+  .segment-content {
+    padding: 20px;
+  }
+}
+</style>
+
+<script>
+// Enhanced form interactions
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('routeForm');
+    const inputs = form.querySelectorAll('.form-input');
+    
+    // Add input focus effects
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('focused');
+        });
+    });
+    
+    // Add form submission effects
+    form.addEventListener('submit', function(e) {
+        const submitBtn = form.querySelector('.search-btn');
+        submitBtn.style.transform = 'scale(0.95)';
+        
+        setTimeout(() => {
+            submitBtn.style.transform = '';
+        }, 150);
+    });
+    
+    // Add smooth scroll to results
+    if (document.querySelector('.results-container')) {
+        setTimeout(() => {
+            document.querySelector('.results-container').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }, 100);
+    }
+});
+
+// Add intersection observer for animations
+const observeElements = () => {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationDelay = '0s';
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    });
+    
+    document.querySelectorAll('.segment-card, .route-summary-card').forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+    });
+};
+
+// Initialize animations
+document.addEventListener('DOMContentLoaded', observeElements);
+</script>
 {% endblock %}
