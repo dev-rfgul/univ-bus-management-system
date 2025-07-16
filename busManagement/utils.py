@@ -81,6 +81,7 @@ def find_shortest_indirect_route_with_buses(start, end):
             stops = route_to_stops[route_num]
             path = stops[stops.index(start):stops.index(end) + 1]
             buses = get_buses_for_route(route_num)
+            print(f"Direct route {route_num} has {len(buses)} buses")
 
             all_buses.extend(buses)
             segments.append({
@@ -91,6 +92,7 @@ def find_shortest_indirect_route_with_buses(start, end):
                 'buses': buses
             })
 
+        print(f"Total buses for direct routes: {len(all_buses)}")
         return {
             'type': 'direct',
             'path': [start, end],
@@ -111,6 +113,14 @@ def find_shortest_indirect_route_with_buses(start, end):
     if one_transfer_routes:
         # Return the route with the fewest total stops
         best_route = sorted(one_transfer_routes, key=lambda r: r['total_stops'])[0]
+        
+        # Debug: Print segment information
+        total_buses = 0
+        for i, segment in enumerate(best_route['segments']):
+            print(f"Segment {i+1}: Route {segment['route']} has {len(segment['buses'])} buses")
+            total_buses += len(segment['buses'])
+        print(f"Total buses across all segments: {total_buses}")
+        
         return {
             'type': 'indirect',
             'path': best_route['path'],
@@ -119,8 +129,8 @@ def find_shortest_indirect_route_with_buses(start, end):
             'end': end,
             'transfer_points': best_route['transfer_points'],
             'total_stops': best_route['total_stops'],
-            'buses': [bus for seg in best_route['segments'] for bus in seg['buses']],
-            'segments': best_route['segments']
+            'buses': [bus for seg in best_route['segments'] for bus in seg['buses']],  # Keep for backward compatibility
+            'segments': best_route['segments']  # This is what the template actually uses
         }
 
     # ✅ Try indirect route with two transfers
@@ -139,8 +149,8 @@ def find_shortest_indirect_route_with_buses(start, end):
             'end': end,
             'transfer_points': best_route['transfer_points'],
             'total_stops': best_route['total_stops'],
-            'buses': [bus for seg in best_route['segments'] for bus in seg['buses']],
-            'segments': best_route['segments']
+            'buses': [bus for seg in best_route['segments'] for bus in seg['buses']],  # Keep for backward compatibility
+            'segments': best_route['segments']  # This is what the template actually uses
         }
 
     # ❌ No route found
@@ -189,6 +199,9 @@ def find_one_transfer_routes_with_buses(start, end, stop_to_routes, route_to_sto
                         buses1 = get_buses_for_route(route1)
                         buses2 = get_buses_for_route(route2)
                         
+                        print(f"        Route {route1} has {len(buses1)} buses")
+                        print(f"        Route {route2} has {len(buses2)} buses")
+                        
                         route_info = {
                             'path': total_path,
                             'routes': [route1, route2],
@@ -220,130 +233,130 @@ def find_one_transfer_routes_with_buses(start, end, stop_to_routes, route_to_sto
     return one_transfer_routes
 
 def find_two_transfer_routes_with_buses(start, end, stop_to_routes, route_to_stops):
-        """Find routes with exactly 2 transfers including bus information"""
-        two_transfer_routes = []
+    """Find routes with exactly 2 transfers including bus information"""
+    two_transfer_routes = []
+    
+    # Get all routes from start
+    for route1 in stop_to_routes[start]:
+        stops1 = route_to_stops[route1]
+        start_idx = stops1.index(start)
         
-        # Get all routes from start
-        for route1 in stop_to_routes[start]:
-            stops1 = route_to_stops[route1]
-            start_idx = stops1.index(start)
+        # For each possible first transfer point on route1
+        for i in range(start_idx + 1, len(stops1)):
+            transfer1 = stops1[i]
             
-            # For each possible first transfer point on route1
-            for i in range(start_idx + 1, len(stops1)):
-                transfer1 = stops1[i]
-                
-                # Find routes that pass through first transfer point
-                for route2 in stop_to_routes[transfer1]:
-                    if route2 == route1:
-                        continue
-                        
-                    stops2 = route_to_stops[route2]
-                    transfer1_idx2 = stops2.index(transfer1)
+            # Find routes that pass through first transfer point
+            for route2 in stop_to_routes[transfer1]:
+                if route2 == route1:
+                    continue
                     
-                    # For each possible second transfer point on route2
-                    for j in range(transfer1_idx2 + 1, len(stops2)):
-                        transfer2 = stops2[j]
-                        
-                        # Find routes that go from second transfer to end
-                        for route3 in stop_to_routes[transfer2]:
-                            if route3 == route2 or route3 == route1:
-                                continue
+                stops2 = route_to_stops[route2]
+                transfer1_idx2 = stops2.index(transfer1)
+                
+                # For each possible second transfer point on route2
+                for j in range(transfer1_idx2 + 1, len(stops2)):
+                    transfer2 = stops2[j]
+                    
+                    # Find routes that go from second transfer to end
+                    for route3 in stop_to_routes[transfer2]:
+                        if route3 == route2 or route3 == route1:
+                            continue
+                            
+                        if end in route_to_stops[route3]:
+                            stops3 = route_to_stops[route3]
+                            transfer2_idx3 = stops3.index(transfer2)
+                            end_idx = stops3.index(end)
+                            
+                            if transfer2_idx3 < end_idx:
+                                path1 = stops1[start_idx:stops1.index(transfer1) + 1]
+                                path2 = stops2[transfer1_idx2 + 1:stops2.index(transfer2) + 1]
+                                path3 = stops3[transfer2_idx3 + 1:end_idx + 1]
+                                total_path = path1 + path2 + path3
                                 
-                            if end in route_to_stops[route3]:
-                                stops3 = route_to_stops[route3]
-                                transfer2_idx3 = stops3.index(transfer2)
-                                end_idx = stops3.index(end)
+                                # Get buses for all three routes
+                                buses1 = get_buses_for_route(route1)
+                                buses2 = get_buses_for_route(route2)
+                                buses3 = get_buses_for_route(route3)
                                 
-                                if transfer2_idx3 < end_idx:
-                                    path1 = stops1[start_idx:stops1.index(transfer1) + 1]
-                                    path2 = stops2[transfer1_idx2 + 1:stops2.index(transfer2) + 1]
-                                    path3 = stops3[transfer2_idx3 + 1:end_idx + 1]
-                                    total_path = path1 + path2 + path3
-                                    
-                                    # Get buses for all three routes
-                                    buses1 = get_buses_for_route(route1)
-                                    buses2 = get_buses_for_route(route2)
-                                    buses3 = get_buses_for_route(route3)
-                                    
-                                    route_info = {
-                                        'path': total_path,
-                                        'routes': [route1, route2, route3],
-                                        'transfer_points': [transfer1, transfer2],
-                                        'total_stops': len(total_path),
-                                        'total_buses': len(buses1) + len(buses2) + len(buses3),
-                                        'segments': [
-                                            {
-                                                'route': route1,
-                                                'from': start,
-                                                'to': transfer1,
-                                                'stops': path1,
-                                                'buses': buses1,
-                                                'bus_count': len(buses1)
-                                            },
-                                            {
-                                                'route': route2,
-                                                'from': transfer1,
-                                                'to': transfer2,
-                                                'stops': path2,
-                                                'buses': buses2,
-                                                'bus_count': len(buses2)
-                                            },
-                                            {
-                                                'route': route3,
-                                                'from': transfer2,
-                                                'to': end,
-                                                'stops': path3,
-                                                'buses': buses3,
-                                                'bus_count': len(buses3)
-                                            }
-                                        ]
-                                    }
-                                    two_transfer_routes.append(route_info)
-        
-        return two_transfer_routes
+                                route_info = {
+                                    'path': total_path,
+                                    'routes': [route1, route2, route3],
+                                    'transfer_points': [transfer1, transfer2],
+                                    'total_stops': len(total_path),
+                                    'total_buses': len(buses1) + len(buses2) + len(buses3),
+                                    'segments': [
+                                        {
+                                            'route': route1,
+                                            'from': start,
+                                            'to': transfer1,
+                                            'stops': path1,
+                                            'buses': buses1,
+                                            'bus_count': len(buses1)
+                                        },
+                                        {
+                                            'route': route2,
+                                            'from': transfer1,
+                                            'to': transfer2,
+                                            'stops': path2,
+                                            'buses': buses2,
+                                            'bus_count': len(buses2)
+                                        },
+                                        {
+                                            'route': route3,
+                                            'from': transfer2,
+                                            'to': end,
+                                            'stops': path3,
+                                            'buses': buses3,
+                                            'bus_count': len(buses3)
+                                        }
+                                    ]
+                                }
+                                two_transfer_routes.append(route_info)
+    
+    return two_transfer_routes
 
 def available_buses_for_direct_route(request):
-        """Your original function for direct routes"""
-        buses = []
-        matching_routes = []
+    """Your original function for direct routes"""
+    buses = []
+    matching_routes = []
 
-        if request.method == 'POST':
-            start_location = request.POST.get('start_location', '').strip().lower()
-            stop = request.POST.get('stop', '').strip().lower()
+    if request.method == 'POST':
+        start_location = request.POST.get('start_location', '').strip().lower()
+        stop = request.POST.get('stop', '').strip().lower()
 
-            if start_location and stop:
-                for route in Route.objects.all():
-                    route_stops = [s.strip().lower() for s in route.stops.split(',') if s.strip()]
+        if start_location and stop:
+            for route in Route.objects.all():
+                route_stops = [s.strip().lower() for s in route.stops.split(',') if s.strip()]
 
-                    if start_location in route_stops and stop in route_stops:
-                        if route_stops.index(start_location) < route_stops.index(stop):
-                            matching_routes.append(route)
+                if start_location in route_stops and stop in route_stops:
+                    if route_stops.index(start_location) < route_stops.index(stop):
+                        matching_routes.append(route)
 
-                buses = Bus.objects.filter(route__in=matching_routes)
-                # print(f"Found {len(buses)} buses for routes: {[bus.bus_number for bus in buses]}")
-            else:
-                return JsonResponse({'error': 'Both start and end locations are required'}, status=400)
+            buses = Bus.objects.filter(route__in=matching_routes)
+            # print(f"Found {len(buses)} buses for routes: {[bus.bus_number for bus in buses]}")
+        else:
+            return JsonResponse({'error': 'Both start and end locations are required'}, status=400)
 
-        return render(request, 'route_view.html', {
-            'buses': buses,
-            'routes': matching_routes
-        })
+    return render(request, 'route_view.html', {
+        'buses': buses,
+        'routes': matching_routes
+    })
 
 def route_view(request):
-        """Enhanced route view with bus availability"""
-        if request.method == 'POST':
-            start_location = request.POST.get('start_location', '').strip().lower()
-            stop = request.POST.get('stop', '').strip().lower()
+    """Enhanced route view with bus availability"""
+    if request.method == 'POST':
+        start_location = request.POST.get('start_location', '').strip().lower()
+        stop = request.POST.get('stop', '').strip().lower()
 
-            if not start_location or not stop:
-                return JsonResponse({'error': 'Start and end stops are required'}, status=400)
+        if not start_location or not stop:
+            return JsonResponse({'error': 'Start and end stops are required'}, status=400)
 
-            result = find_shortest_indirect_route_with_buses(start_location, stop)
-            
-            if not result:
-                return JsonResponse({'error': 'No route found'}, status=404)
-            # print(result)
-            return render(request, 'route_view.html', {'result': result})
+        result = find_shortest_indirect_route_with_buses(start_location, stop)
         
-        # If GET request, just render empty form
-        return render(request, 'route_view.html')
+        if not result:
+            return JsonResponse({'error': 'No route found'}, status=404)
+        # print(result)
+        return render(request, 'route_view.html', {'result': result})
+    
+    # If GET request, just render empty form
+    return render(request, 'route_view.html')
